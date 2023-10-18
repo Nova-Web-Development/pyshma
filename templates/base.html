@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>СберПитание</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="shortcut icon" href="https://free-png.ru/wp-content/uploads/2020/09/icon_sber-01.png" type="image/png">
+  <link rel="stylesheet" href="static/css/styles.css">
+  {% block title %} {% endblock title %}
+</head>
+<body>
+  <nav class="navbar navbar-dark bg-dark bg-gradient">
+    <button onclick="location.href='/'" type="button" class="btn btn-primary">Главная</button>
+    <div class="rt">
+      <button style="margin-left: 10px;" type="submit" class="nav-btn-1 btn btn-primary" onclick='location.href = "https://oauth.vk.com/authorize?client_id=<?= ID ?>&display=page&redirect_uri=<?= URL ?>&scope=photos&response_type=code&v=5.131";'>Зарегистрироваться</button>
+      <button style="margin-left: 10px;" type="submit" class="nav-btn-2 btn btn-primary" onclick='location.href = "https://oauth.vk.com/authorize?client_id=<?= ID ?>&display=page&redirect_uri=<?= URL ?>&scope=photos&response_type=code&v=5.131";'>Войти</button>
+    </div>
+    <!-- <div class="lk">
+      <button class="btn btn-primary" onclick="location.href='/apanel'">
+        Панель управления
+      </button>
+      <button class="btn btn-primary" onclick="location.href='/lk'">
+        <span class="name-surname"></span>
+        <img id=" img" class="image" src="" alt="Фотография профиля">
+      </button>
+    </div> -->
+  </nav>
+  {% block body %} {% endblock body %}
+  <footer class="bg-dark text-center text-light py-3">
+    <p>&copy; 2023 NovaDev. Все права защищены</p>
+    <a style="text-decoration: none;" href="https://vk.com/artyomjk">NovaDev</a>
+  </footer>
+</body>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</html>

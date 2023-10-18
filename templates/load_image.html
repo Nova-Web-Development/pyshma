@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{% endblock title %}
+{% block body %}
+<div class="text-center">
+    <form method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="ticket">Прикрепить чек</label>
+            <input type="file" class="form-control" name="ticket" id="ticket" required>
+        </div>
+        <button class="btn btn-success" type="submit">Отправить</button>
+    </form> 
+</div>
+{% endblock body %}
