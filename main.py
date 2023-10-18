@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, redirect, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_mysqldb import MySQL
 import requests
 
@@ -24,6 +23,15 @@ def get_users():
     res = cur.fetchall()
     # return render_template('index.html')
     return list(res)
+
+
+@app.route('/register')
+def register():
+    return 'Register'
+
+@app.route('/login')
+def login():
+    return 'Login'
 
 
 @app.route('/')

@@ -16,6 +16,12 @@ input {
     /* Другие стили, которые могут влиять на размер элемента */
 }
   
+a.text:active, /* активная/посещенная ссылка */
+a.text:hover,  /* при наведении */
+a.text {
+  text-decoration: none;
+  color: #666;
+}
 
 .jumbotron {
     background-image: url('https://example.com/background.jpg');
