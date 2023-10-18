@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, redirect, jsonify
 from flask_mysqldb import MySQL
 import requests
+import hashlib
+from uuid import uuid4
+from random import randint as r
 
 
 API_IMGBB = '370326a03e29ac5d740481d473e46b20'
@@ -16,22 +19,71 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 mysql = MySQL(app)
 
 
-@app.route('/getusers')
+def generateToken(length=20) -> str:
+    lettersLow = 'abcdefghigklmnopqrstuvwxyz'
+    lettersHigh = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    nums = '1234567890'
+    string = ""
+    for i in range(length):
+        a = r(1, 3) == 1
+        if a == 1:
+            string += lettersLow[r(0, len(lettersLow) -1)]
+        elif a == 2:
+            string += lettersHigh[r(0, len(lettersHigh) -1)]
+        else:
+            string += nums[r(0, len(nums) -1)]
+    return string
+
+@app.route('/api/getusers')
 def get_users():
     cur = mysql.connection.cursor()
-    cur.execute('''SELECT * FROM users WHERE 1''')
+    cur.execute('''SELECT * FROM users WHERE 1;''')
     res = cur.fetchall()
     # return render_template('index.html')
+    return jsonify(res)
+
+@app.route('/api/getinfo', methods=['GET'])
+def isRegistered():
+    email = request.args.get('email')
+    values = (email)
+    cur = mysql.connection.cursor()
+    cur.execute('''SELECT * FROM users WHERE email == %s;''', values)
+    res = cur.fetchall()
     return list(res)
 
 
-@app.route('/register')
+@app.route('/register', methods=['POST', 'GET'])
 def register():
-    return 'Register'
+    if request.method == 'POST':
+        user_name = request.form['username']
+        email = request.form['email']
+        password = hashlib.md5(request.form['password1'].encode()).hexdigest()
+        cur = mysql.connection.cursor()
+        values = (user_name, email, password)
+        cur.execute('''INSERT INTO users (nickname, email, password) VALUES (%s, %s, %s);''', values)
+        mysql.connection.commit()
+        return redirect('/')
+    return render_template('register.html')
 
-@app.route('/login')
+@app.route('/login', methods=['POST', 'GET'])
 def login():
-    return 'Login'
+    if request.method == 'POST':
+        cur = mysql.connection.cursor()
+        email = request.form['email']
+        password = hashlib.md5(request.form['password'].encode()).hexdigest()
+        values = (email, password)
+        res = requests.get('http://localhost:5000/api/getusers').json()[0]
+        if res:
+            if password == res['password']:
+                values = (int(res['id']), generateToken())
+                print(values)
+                cur.execute('''INSERT INTO tokens (user_id, token) VALUES (%s, %s);''', values)
+                mysql.connection.commit()
+                return redirect('/')
+            else:
+                return redirect('/login')
+
+    return render_template('login.html')
 
 
 @app.route('/')
@@ -50,7 +102,7 @@ def form():
     return render_template('form.html')
 
 
-@app.route('/loadimage', methods=['POST', 'GET'])
+@app.route('/api/loadimage', methods=['POST', 'GET'])
 def load_image():
     if request.method == 'POST':
         image_path = request.files['ticket']
