@@ -27,12 +27,13 @@ def generateToken(length=20) -> str:
     for i in range(length):
         a = r(1, 3) == 1
         if a == 1:
-            string += lettersLow[r(0, len(lettersLow) -1)]
+            string += lettersLow[r(0, len(lettersLow) - 1)]
         elif a == 2:
-            string += lettersHigh[r(0, len(lettersHigh) -1)]
+            string += lettersHigh[r(0, len(lettersHigh) - 1)]
         else:
-            string += nums[r(0, len(nums) -1)]
+            string += nums[r(0, len(nums) - 1)]
     return string
+
 
 @app.route('/api/getusers')
 def get_users():
@@ -41,6 +42,7 @@ def get_users():
     res = cur.fetchall()
     # return render_template('index.html')
     return jsonify(res)
+
 
 @app.route('/api/getinfo', methods=['GET'])
 def isRegistered():
@@ -64,6 +66,7 @@ def register():
         mysql.connection.commit()
         return redirect('/')
     return render_template('register.html')
+
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -118,6 +121,7 @@ def load_image():
         mysql.connection.commit()
         return redirect('/')
     return render_template('load_image.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
