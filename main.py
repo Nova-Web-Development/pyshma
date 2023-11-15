@@ -5,6 +5,7 @@ import hashlib
 from uuid import uuid4
 from random import randint as r
 
+
 API_IMGBB = '370326a03e29ac5d740481d473e46b20'
 app = Flask(__name__)
 
