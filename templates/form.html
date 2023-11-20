@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{% endblock title %}
+{% block lk %}
+{% if isAuth %}
+<div class="rt">
+  <button class="btn btn-primary" onclick="location.href='/apanel'">
+    Панель управления
+  </button>
+  <button class="btn btn-primary" onclick="location.href='/lk'">
+    <span class="name-surname">{{ user_name }}</span>
+    <img id=" img" class="image" src="{{ image }}" alt="Фотография профиля">
+  </button>
+</div>
+{% else %}
+<div class="rt">
+  <button style="margin-left: 10px;" type="submit" class="nav-btn-2 btn btn-primary register" onclick="location.href = '/register'">Зарегистрироваться</button>
+  <button style="margin-left: 10px;" type="submit" class="nav-btn-2 btn btn-primary login" onclick="location.href = '/login'">Войти</button>
+</div>
+{% endif %}
+{% endblock lk %}
+{% block body %}
+<div class="text-center">
+    <form method="post">
+        <div class="form-group">
+            <label for="user_id">ID пользователя</label>
+            <input type="number" class="form-control" name="user_id" id="user_id">
+        </div>
+        <div class="form-group">
+            <label for="company">Компания</label>
+            <input type="text" class="form-control" name="company" id="company">
+        </div>
+        <div class="form-group">
+            <label for="price">Цена чека</label>
+            <input type="number" class="form-control" name="price" id="price">
+        </div>
+        <button class="btn btn-success" type="submit">Отправить</button>
+    </form> 
+</div>
+{% endblock body %}
