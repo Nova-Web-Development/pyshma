@@ -5,7 +5,8 @@
 {% block body %}
 <div class="container text-center form-login-reg">
     <h2>Регистрация</h2>
-    <form onsubmit="return verifyPassword()" method="post">
+    <form onsubmit="return verifyPassword()" method="post"> 
+        <!-- action="/register_handler" -->
         <div class="form-group">
             <label for="username">Имя пользователя:</label>
             <input type="text" id="username" name="username" required>

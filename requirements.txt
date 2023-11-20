@@ -2,3 +2,5 @@ Flask==3.0.0
 flask_mysqldb==2.0.0
 flask_sqlalchemy==3.1.1
 Requests==2.31.0
+Flask-RESTful==0.3.8
+PyJWT==1.7.1
