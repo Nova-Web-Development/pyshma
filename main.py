@@ -90,8 +90,8 @@ def login():
         if res:
             if password == res[0][3]:
                 user = {
-                    'id': res[0][0],
-                    'nickname': res[0][1],
+                    'user_id': res[0][0],
+                    'user_name': res[0][1],
                     'email': res[0][2],
                     'password': res[0][3]
                 }
@@ -123,7 +123,7 @@ def index():
 def form():
     if request.method == 'POST':
         cur = get_db().cursor()
-        values = (request.form['user_id'], request.form['company'], request.form['price'])
+        values = (str(userlogin.get_id()), request.form['company'], request.form['price'])
         cur.execute('''INSERT INTO tickets (user_id, company, price) VALUES (?, ?, ?);''', values)
         get_db().commit()
         return redirect('/')
@@ -144,7 +144,7 @@ def load_image():
         response_data = response.json()
         image_url = response_data.get("data", {}).get("url")
         cur = get_db().cursor()
-        values = (123, image_url)
+        values = (userlogin.get_id(), image_url)
         cur.execute('''INSERT INTO tickets_code (user_id, link) VALUES (?, ?);''', values)
         get_db().commit()
         return redirect('/')
@@ -152,6 +152,14 @@ def load_image():
         return render_template('load_image.html', isAuth=True, user_name=userlogin.get_name(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
     else:
         return render_template('load_image.html', isAuth=False)
+
+@app.route('/lk')
+@login_required
+def lk():
+    if current_user.is_authenticated:
+        return render_template('lk.html', isAuth=True, user_name=userlogin.get_name(), email=userlogin.get_email(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+    else:
+        return render_template('lk.html', isAuth=False)
 
 if __name__ == '__main__':
     app.teardown_appcontext(close_db)

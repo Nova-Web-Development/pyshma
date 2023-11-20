@@ -20,10 +20,13 @@ class UserLogin():
         return False
 
     def get_id(self):
-        return str(self.user['id'])
+        return str(self.user['user_id'])
     
     def get_name(self):
-        return str(self.user['nickname'])
+        return str(self.user['user_name'])
+    
+    def get_email(self):
+        return str(self.user['email'])
     
     def get_user(self):
         return self.user

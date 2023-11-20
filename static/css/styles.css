@@ -3,6 +3,29 @@ html {
     height: 100%;
 }
 
+.image-container {
+    max-width: 300px;
+    max-height: 300px;
+    overflow: hidden;
+  }
+
+.resized-image {
+    width: 100%;
+    height: auto;
+  }
+
+.square-image-rt {
+    width: 20%;
+    height: auto;
+    aspect-ratio: 1 / 1;  /* This ensures that the aspect ratio is 1:1 (square) */
+}
+
+.square-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;  /* This ensures that the aspect ratio is 1:1 (square) */
+}
+
 body {
     width: auto;
     height: auto;
