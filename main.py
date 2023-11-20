@@ -62,11 +62,54 @@ def generateToken(length=20) -> str:
 #     res = cur.fetchall()
 #     return jsonify(res)
 
+@app.route('/user_info')
+@login_required
+def example():
+    statuses = {
+        "0": "Сотрудник",
+        "1": "Администратор",
+        "2": "Директор",
+        "3": "Разработчик"
+    }
+    
+    user_id = request.args.get('user_id')
+    cur = get_db().cursor()
+    cur.execute('''SELECT * FROM users WHERE id = ?''', (user_id))
+    res = cur.fetchall()
+    return render_template('user_info.html', isAuth=True, status=statuses[get_status(user_id)], user_name=res[0][1], email=res[0][1], image=get_image(res[0][0]))
+
 def get_status(user_id):
     cur = get_db().cursor()
     cur.execute('''SELECT status FROM statuses WHERE user_id = ?;''', str(user_id))
     res = cur.fetchall()
     return str(res[0][0])
+
+def get_image(user_id):
+    cur = get_db().cursor()
+    cur.execute('''SELECT image FROM images WHERE user_id = ?;''', str(user_id))
+    res = cur.fetchall()
+    return str(res[0][0])
+
+@app.route('/change_image', methods=['POST', 'GET'])
+@login_required
+def change_image():
+    if request.method == 'POST':
+        image_path = request.files['ticket']
+        upload_url = "https://api.imgbb.com/1/upload"
+        files = {'image': (image_path.filename, image_path, image_path.mimetype)}
+        data = {'key': API_IMGBB}
+        response = requests.post(url=upload_url, files=files, data=data)
+        response_data = response.json()
+        image_url = response_data.get("data", {}).get("url")
+        cur = get_db().cursor()
+        values = (image_url, userlogin.get_id())
+        cur.execute('''UPDATE images SET image = ? WHERE user_id = ?;''', values)
+        get_db().commit()
+        return redirect('/')
+    if current_user.is_authenticated:
+        return render_template('load_image.html', isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
+    else:
+        return render_template('load_image.html', isAuth=False)
 
 @app.route('/register', methods=['POST', 'GET'])
 def register():
@@ -81,13 +124,14 @@ def register():
             last_id = str(res[-1][0]+1)
         else:
             last_id = "1"
-        values = (user_name, email, password)
-        cur.execute('''INSERT INTO users (nickname, email, password) VALUES (?, ?, ?);''', values)
+        values = (last_id, user_name, email, password)
+        cur.execute('''INSERT INTO users (id, nickname, email, password) VALUES (?, ?, ?, ?);''', values)
         cur.execute('''INSERT INTO statuses (user_id, status) VALUES (?, ?);''', (last_id, 0))
+        cur.execute('''INSERT INTO images (user_id, image) VALUES (?, ?);''', (last_id, 'https://gamedev.ru/files/images/ieju7eh0-vu.jpg'))
         get_db().commit()
-        return redirect('/')
+        return redirect('/login')
     if current_user.is_authenticated:
-        return render_template('register.html', isAuth=True, user_name=userlogin.get_name(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+        return render_template('register.html', isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
     else:
         return render_template('register.html', isAuth=False)
 
@@ -107,7 +151,8 @@ def login():
                     'user_name': res[0][1],
                     'email': res[0][2],
                     'password': res[0][3],
-                    'status': get_status(res[0][0])
+                    'status': get_status(res[0][0]),
+                    'image': get_image(res[0][0])
                 }
                 global userlogin
                 userlogin = UserLogin().create(user)
@@ -117,7 +162,7 @@ def login():
             else:
                 return redirect('/login')
     if current_user.is_authenticated:
-        return render_template('login.html', isAuth=True, user_name=userlogin.get_name(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+        return render_template('login.html', isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
     else:
         return render_template('login.html', isAuth=False)
 
@@ -128,7 +173,7 @@ def unauthorized():
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        return render_template('index.html', isAuth=True, user_name=userlogin.get_name(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+        return render_template('index.html', isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
     else:
         return render_template('index.html', isAuth=False)
 
@@ -142,7 +187,7 @@ def form():
         get_db().commit()
         return redirect('/')
     if current_user.is_authenticated:
-        return render_template('form.html', isAuth=True, user_name=userlogin.get_name(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+        return render_template('form.html', isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
     else:
         return render_template('form.html', isAuth=False)
 
@@ -163,7 +208,7 @@ def load_image():
         get_db().commit()
         return redirect('/')
     if current_user.is_authenticated:
-        return render_template('load_image.html', isAuth=True, user_name=userlogin.get_name(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+        return render_template('load_image.html', isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
     else:
         return render_template('load_image.html', isAuth=False)
 
@@ -184,7 +229,7 @@ def lk():
     }
 
     if current_user.is_authenticated:
-        return render_template('lk.html', isAuth=True, status=statuses[get_status(userlogin.get_id())], user_name=userlogin.get_name(), email=userlogin.get_email(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+        return render_template('lk.html', isAuth=True, status=statuses[get_status(userlogin.get_id())], user_name=userlogin.get_name(), email=userlogin.get_email(), image=get_image(userlogin.get_id()))
     else:
         return render_template('lk.html', isAuth=False)
 
@@ -197,8 +242,10 @@ def apanel():
         cur = get_db().cursor()
         cur.execute('''SELECT * FROM tickets WHERE 1''')
         res = cur.fetchall()
+        cur.execute('''SELECT id, nickname, email FROM users WHERE 1''')
+        res1 = cur.fetchall()
         if current_user.is_authenticated:
-            return render_template('apanel.html', isAuth=True, tickets=res, user_name=userlogin.get_name(), email=userlogin.get_email(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+            return render_template('apanel.html', isAuth=True, tickets=res, users=res1, user_name=userlogin.get_name(), email=userlogin.get_email(), image=get_image(userlogin.get_id()))
         else:
             return render_template('apanel.html', isAuth=False)
 

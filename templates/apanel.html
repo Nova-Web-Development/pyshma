@@ -7,7 +7,7 @@
   </button>
   <button class="btn btn-primary" onclick="location.href='/lk'">
     <span class="name-surname">{{ user_name }}</span>
-    <img id=" img" class="image square-image-rt" src="{{ image }}" alt="Фотография профиля">
+    <img id="img" class="image square-image-rt" src="{{ image }}" alt="Фотография профиля">
   </button>
 </div>
 {% else %}
@@ -17,26 +17,67 @@
 </div>
 {% endif %}
 {% endblock lk %}
+
 {% block body %}
-<div class="tab-content" id="myTabContent">
-    <div class="tab-pane fade show active" id="developers" role="tabpanel" aria-labelledby="developers-tab">
-        <table class="table" id="developers-template">
-            <!-- Ваша таблица со столбцами: ник, ВК, должность, фракция и дата регистрации для developers -->
+<div class="container">
+  <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" id="tickets-tab" data-toggle="tab" href="#tickets" role="tab" aria-controls="tickets" aria-selected="true" onclick="showTable('tickets-template')">Траты</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="users-tab" data-toggle="tab" href="#users" role="tab" aria-controls="users" aria-selected="false" onclick="showTable('users-template')">Пользователи</a>
+    </li>
+  </ul>
+  <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active" id="tickets" role="tabpanel" aria-labelledby="tickets-tab">
+          <table class="table" id="tickets-template">
+              <thead>
+                  <tr>
+                      <th>ID пользователя</th>
+                      <th>Компания</th>
+                      <th>Цена чека</th>
+                  </tr>
+              </thead>
+              {% for ticket in tickets %}
+              <tbody>
+                  <th>{{ ticket[0] }}</th>
+                  <th>{{ ticket[1] }}</th>
+                  <th>{{ ticket[2] }}</th>
+              </tbody>
+              {% endfor %}
+          </table>
+      </div>
+  </div>
+  <div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade" id="users" role="tabpanel" aria-labelledby="users-tab">
+        <table class="table" id="users-template">
             <thead>
                 <tr>
                     <th>ID пользователя</th>
-                    <th>Компания</th>
-                    <th>Цена чека</th>
+                    <th>Никнейм</th>
+                    <th>Email</th>
                 </tr>
             </thead>
-            {% for ticket in tickets %}
+            {% for user in users %}
             <tbody>
-                <th>{{ ticket[0] }}</th>
-                <th>{{ ticket[1] }}</th>
-                <th>{{ ticket[2] }}</th>
+                <th>{{ user[0] }}</th>
+                <th>{{ user[1] }}</th>
+                <th>{{ user[2] }}</th>
             </tbody>
             {% endfor %}
         </table>
     </div>
+  </div>
 </div>
+
+<script>
+function showTable(tableId) {
+  document.querySelectorAll('.table').forEach(function(table) {
+    table.style.display = 'none';
+  });
+
+  document.getElementById(tableId).style.display = 'table';
+}
+</script>
+
 {% endblock body %}
