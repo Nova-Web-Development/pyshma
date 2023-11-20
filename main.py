@@ -46,21 +46,27 @@ def generateToken(length=20) -> str:
             string += nums[r(0, len(nums) - 1)]
     return string
 
-@app.route('/api/users')
-def get_users():
-    cur = get_db().cursor()
-    cur.execute('''SELECT * FROM users WHERE 1;''')
-    res = cur.fetchall()
-    return jsonify(res)
+# @app.route('/api/users')
+# def get_users():
+#     cur = get_db().cursor()
+#     cur.execute('''SELECT * FROM users WHERE 1;''')
+#     res = cur.fetchall()
+#     return jsonify(res)
 
-@app.route('/api/getinfo', methods=['GET'])
-def is_registered():
-    email = request.args.get('email')
-    values = (email,)
+# @app.route('/api/getinfo', methods=['GET'])
+# def is_registered():
+#     email = request.args.get('email')
+#     values = (email,)
+#     cur = get_db().cursor()
+#     cur.execute('''SELECT * FROM users WHERE email = ?;''', values)
+#     res = cur.fetchall()
+#     return jsonify(res)
+
+def get_status(user_id):
     cur = get_db().cursor()
-    cur.execute('''SELECT * FROM users WHERE email = ?;''', values)
+    cur.execute('''SELECT status FROM statuses WHERE user_id = ?;''', str(user_id))
     res = cur.fetchall()
-    return jsonify(res)
+    return str(res[0][0])
 
 @app.route('/register', methods=['POST', 'GET'])
 def register():
@@ -69,8 +75,15 @@ def register():
         email = request.form['email']
         password = hashlib.md5(request.form['password1'].encode()).hexdigest()
         cur = get_db().cursor()
+        cur.execute('''SELECT * FROM users WHERE 1''')
+        res = cur.fetchall()
+        if len(res) > 0:
+            last_id = str(res[-1][0]+1)
+        else:
+            last_id = "1"
         values = (user_name, email, password)
         cur.execute('''INSERT INTO users (nickname, email, password) VALUES (?, ?, ?);''', values)
+        cur.execute('''INSERT INTO statuses (user_id, status) VALUES (?, ?);''', (last_id, 0))
         get_db().commit()
         return redirect('/')
     if current_user.is_authenticated:
@@ -93,13 +106,14 @@ def login():
                     'user_id': res[0][0],
                     'user_name': res[0][1],
                     'email': res[0][2],
-                    'password': res[0][3]
+                    'password': res[0][3],
+                    'status': get_status(res[0][0])
                 }
                 global userlogin
                 userlogin = UserLogin().create(user)
                 login_user(userlogin)
                 get_db().commit()
-                return redirect('/')
+                return redirect('/lk')
             else:
                 return redirect('/login')
     if current_user.is_authenticated:
@@ -132,7 +146,7 @@ def form():
     else:
         return render_template('form.html', isAuth=False)
 
-@app.route('/api/loadimage', methods=['POST', 'GET'])
+@app.route('/loadimage', methods=['POST', 'GET'])
 @login_required
 def load_image():
     if request.method == 'POST':
@@ -156,10 +170,31 @@ def load_image():
 @app.route('/lk')
 @login_required
 def lk():
+    statuses = {
+        "0": "Сотрудник",
+        "1": "Администратор",
+        "2": "Директор",
+        "3": "Разработчик"
+    }
+
     if current_user.is_authenticated:
-        return render_template('lk.html', isAuth=True, user_name=userlogin.get_name(), email=userlogin.get_email(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+        return render_template('lk.html', isAuth=True, status=statuses[get_status(userlogin.get_id())], user_name=userlogin.get_name(), email=userlogin.get_email(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
     else:
         return render_template('lk.html', isAuth=False)
+
+@app.route('/apanel')
+@login_required
+def apanel():
+    if get_status(userlogin.get_id()) == "0":
+        return redirect('/lk')
+    else:
+        cur = get_db().cursor()
+        cur.execute('''SELECT * FROM tickets WHERE 1''')
+        res = cur.fetchall()
+        if current_user.is_authenticated:
+            return render_template('apanel.html', isAuth=True, tickets=res, user_name=userlogin.get_name(), email=userlogin.get_email(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+        else:
+            return render_template('apanel.html', isAuth=False)
 
 if __name__ == '__main__':
     app.teardown_appcontext(close_db)

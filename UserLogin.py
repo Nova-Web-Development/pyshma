@@ -28,5 +28,8 @@ class UserLogin():
     def get_email(self):
         return str(self.user['email'])
     
+    def get_status(self):
+        return str(self.user['status'])
+
     def get_user(self):
         return self.user

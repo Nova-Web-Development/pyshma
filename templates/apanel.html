@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block lk %}
+{% if isAuth %}
+<div class="rt">
+  <button class="btn btn-primary" onclick="location.href='/apanel'">
+    Панель управления
+  </button>
+  <button class="btn btn-primary" onclick="location.href='/lk'">
+    <span class="name-surname">{{ user_name }}</span>
+    <img id=" img" class="image square-image-rt" src="{{ image }}" alt="Фотография профиля">
+  </button>
+</div>
+{% else %}
+<div class="rt">
+  <button style="margin-left: 10px;" type="submit" class="nav-btn-2 btn btn-primary register" onclick="location.href = '/register'">Зарегистрироваться</button>
+  <button style="margin-left: 10px;" type="submit" class="nav-btn-2 btn btn-primary login" onclick="location.href = '/login'">Войти</button>
+</div>
+{% endif %}
+{% endblock lk %}
+{% block body %}
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" id="developers" role="tabpanel" aria-labelledby="developers-tab">
+        <table class="table" id="developers-template">
+            <!-- Ваша таблица со столбцами: ник, ВК, должность, фракция и дата регистрации для developers -->
+            <thead>
+                <tr>
+                    <th>ID пользователя</th>
+                    <th>Компания</th>
+                    <th>Цена чека</th>
+                </tr>
+            </thead>
+            {% for ticket in tickets %}
+            <tbody>
+                <th>{{ ticket[0] }}</th>
+                <th>{{ ticket[1] }}</th>
+                <th>{{ ticket[2] }}</th>
+            </tbody>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock body %}
