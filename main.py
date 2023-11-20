@@ -157,3 +157,4 @@ if __name__ == '__main__':
     app.teardown_appcontext(close_db)
     app.secret_key = generateToken()
     app.run(debug=True)
+
