@@ -167,6 +167,12 @@ def load_image():
     else:
         return render_template('load_image.html', isAuth=False)
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect('/')
+
 @app.route('/lk')
 @login_required
 def lk():
