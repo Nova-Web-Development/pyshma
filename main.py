@@ -158,3 +158,4 @@ if __name__ == '__main__':
     app.secret_key = generateToken()
     app.run(debug=True)
 
+
