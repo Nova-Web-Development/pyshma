@@ -4,12 +4,21 @@ import requests
 import hashlib
 from uuid import uuid4
 from random import randint as r
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from UserLogin import UserLogin
 
 API_IMGBB = '370326a03e29ac5d740481d473e46b20'
 app = Flask(__name__)
 
 app.config['DATABASE'] = 'database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+login_manager = LoginManager(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    print('load_user')
+    return UserLogin().fromDB(user_id, get_db())
 
 def get_db():
     db = getattr(g, '_database', None)
@@ -28,7 +37,7 @@ def generateToken(length=20) -> str:
     nums = '1234567890'
     string = ""
     for i in range(length):
-        a = r(1, 3) == 1
+        a = r(1, 3)
         if a == 1:
             string += lettersLow[r(0, len(lettersLow) - 1)]
         elif a == 2:
@@ -64,7 +73,10 @@ def register():
         cur.execute('''INSERT INTO users (nickname, email, password) VALUES (?, ?, ?);''', values)
         get_db().commit()
         return redirect('/')
-    return render_template('register.html')
+    if current_user.is_authenticated:
+        return render_template('register.html', isAuth=True, user_name=userlogin.get_name(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+    else:
+        return render_template('register.html', isAuth=False)
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -76,21 +88,38 @@ def login():
         cur.execute('''SELECT * FROM users WHERE email = ?;''', values)
         res = cur.fetchall()
         if res:
-            if password == res[0]['password']:
-                values = (int(res[0]['id']), generateToken())
-                print(values)
-                cur.execute('''INSERT INTO tokens (user_id, token) VALUES (?, ?);''', values)
+            if password == res[0][3]:
+                user = {
+                    'id': res[0][0],
+                    'nickname': res[0][1],
+                    'email': res[0][2],
+                    'password': res[0][3]
+                }
+                global userlogin
+                userlogin = UserLogin().create(user)
+                login_user(userlogin)
                 get_db().commit()
                 return redirect('/')
             else:
                 return redirect('/login')
-    return render_template('login.html')
+    if current_user.is_authenticated:
+        return render_template('login.html', isAuth=True, user_name=userlogin.get_name(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+    else:
+        return render_template('login.html', isAuth=False)
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    return redirect('/login')
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    if current_user.is_authenticated:
+        return render_template('index.html', isAuth=True, user_name=userlogin.get_name(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+    else:
+        return render_template('index.html', isAuth=False)
 
 @app.route('/form', methods=['POST', 'GET'])
+@login_required
 def form():
     if request.method == 'POST':
         cur = get_db().cursor()
@@ -98,9 +127,13 @@ def form():
         cur.execute('''INSERT INTO tickets (user_id, company, price) VALUES (?, ?, ?);''', values)
         get_db().commit()
         return redirect('/')
-    return render_template('form.html')
+    if current_user.is_authenticated:
+        return render_template('form.html', isAuth=True, user_name=userlogin.get_name(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+    else:
+        return render_template('form.html', isAuth=False)
 
 @app.route('/api/loadimage', methods=['POST', 'GET'])
+@login_required
 def load_image():
     if request.method == 'POST':
         image_path = request.files['ticket']
@@ -115,8 +148,12 @@ def load_image():
         cur.execute('''INSERT INTO tickets_code (user_id, link) VALUES (?, ?);''', values)
         get_db().commit()
         return redirect('/')
-    return render_template('load_image.html')
+    if current_user.is_authenticated:
+        return render_template('load_image.html', isAuth=True, user_name=userlogin.get_name(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+    else:
+        return render_template('load_image.html', isAuth=False)
 
 if __name__ == '__main__':
     app.teardown_appcontext(close_db)
+    app.secret_key = generateToken()
     app.run(debug=True)

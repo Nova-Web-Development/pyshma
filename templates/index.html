@@ -2,6 +2,24 @@
 
 {% block title %}
 {% endblock title %}
+{% block lk %}
+{% if isAuth %}
+<div class="rt">
+  <button class="btn btn-primary" onclick="location.href='/apanel'">
+    Панель управления
+  </button>
+  <button class="btn btn-primary" onclick="location.href='/lk'">
+    <span class="name-surname">{{ user_name }}</span>
+    <img id=" img" class="image" src="{{ image }}" alt="Фотография профиля">
+  </button>
+</div>
+{% else %}
+<div class="rt">
+  <button style="margin-left: 10px;" type="submit" class="nav-btn-2 btn btn-primary register" onclick="location.href = '/register'">Зарегистрироваться</button>
+  <button style="margin-left: 10px;" type="submit" class="nav-btn-2 btn btn-primary login" onclick="location.href = '/login'">Войти</button>
+</div>
+{% endif %}
+{% endblock lk %}
 {% block body %}
   <div class="jumbotron text-center main">
     <h1></h1>

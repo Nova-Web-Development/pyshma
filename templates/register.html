@@ -2,11 +2,28 @@
 {% block title %}
 <script src="/static/js/register.js"></script>
 {% endblock title %}
+{% block lk %}
+{% if isAuth %}
+<div class="rt">
+  <button class="btn btn-primary" onclick="location.href='/apanel'">
+    Панель управления
+  </button>
+  <button class="btn btn-primary" onclick="location.href='/lk'">
+    <span class="name-surname">{{ user_name }}</span>
+    <img id=" img" class="image" src="{{ image }}" alt="Фотография профиля">
+  </button>
+</div>
+{% else %}
+<div class="rt">
+  <button style="margin-left: 10px;" type="submit" class="nav-btn-2 btn btn-primary register" onclick="location.href = '/register'">Зарегистрироваться</button>
+  <button style="margin-left: 10px;" type="submit" class="nav-btn-2 btn btn-primary login" onclick="location.href = '/login'">Войти</button>
+</div>
+{% endif %}
+{% endblock lk %}
 {% block body %}
 <div class="container text-center form-login-reg">
     <h2>Регистрация</h2>
     <form onsubmit="return verifyPassword()" method="post"> 
-        <!-- action="/register_handler" -->
         <div class="form-group">
             <label for="username">Имя пользователя:</label>
             <input type="text" id="username" name="username" required>
@@ -27,7 +44,7 @@
             <span id = "message" style="color:red"> </span>
         </div>
         <div class="form-group">
-            <button type="submit" value="Submit">Зарегистрироваться</button>
+            <button value="Submit" type="submit">Зарегистрироваться</button> 
         </div>
     </form>
 </div>
