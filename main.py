@@ -218,22 +218,18 @@ def form():
 @login_required
 def load_image():
     if request.method == 'POST':
-        # Use request.files.get('ticket') instead of request.files['ticket']
-        image_path = request.files.get('file')
-
-        if image_path:
-            upload_url = "https://api.imgbb.com/1/upload"
-            files = {'image': (image_path.filename, image_path, image_path.mimetype)}
-            data = {'key': API_IMGBB}
-            response = requests.post(url=upload_url, files=files, data=data)
-            response_data = response.json()
-            image_url = response_data.get("data", {}).get("url")
-            cur = get_db().cursor()
-            values = (userlogin.get_id(), image_url)
-            cur.execute('''INSERT INTO tickets_code (user_id, link) VALUES (?, ?);''', values)
-            get_db().commit()
-            return redirect('/')
-
+        image_path = request.files['ticket']
+        upload_url = "https://api.imgbb.com/1/upload"
+        files = {'image': (image_path.filename, image_path, image_path.mimetype)}
+        data = {'key': API_IMGBB}
+        response = requests.post(url=upload_url, files=files, data=data)
+        response_data = response.json()
+        image_url = response_data.get("data", {}).get("url")
+        cur = get_db().cursor()
+        values = (userlogin.get_id(), image_url)
+        cur.execute('''INSERT INTO tickets_code (user_id, link) VALUES (?, ?);''', values)
+        get_db().commit()
+        return redirect('/')
     if current_user.is_authenticated:
         return render_template('load_image.html', lvl=get_status(userlogin.get_id()), isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
     else:
