@@ -2,9 +2,11 @@
 {% block lk %}
 {% if isAuth %}
 <div class="rt">
-  <button class="btn btn-primary" onclick="location.href='/apanel'">
-    Панель управления
-  </button>
+  {% if lvl != "0" %}
+    <button class="btn btn-primary" onclick="location.href='/apanel'">
+      Панель управления
+    </button>
+  {% endif %}
   <button class="btn btn-primary" onclick="location.href='/lk'">
     <span class="name-surname">{{ user_name }}</span>
     <img id="img" class="image square-image-rt" src="{{ image }}" alt="Фотография профиля">
@@ -42,6 +44,7 @@
                     <p><strong>Никнейм: {{ user_name }}</strong> <span id="vk_link"></span></p>
                     <p><strong>Email: {{ email }}</strong> <span id="lvl"></span></p>
                     <p><strong>Должность: {{ status }}</strong> <span id="date"></span></p>
+                    <button class="btn btn-primary" onclick="location.href = '/load_image'">Загрузить чек</button>
                 </div>
             </div>
         </div>

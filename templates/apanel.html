@@ -2,9 +2,11 @@
 {% block lk %}
 {% if isAuth %}
 <div class="rt">
-  <button class="btn btn-primary" onclick="location.href='/apanel'">
-    Панель управления
-  </button>
+  {% if lvl != "0" %}
+    <button class="btn btn-primary" onclick="location.href='/apanel'">
+      Панель управления
+    </button>
+  {% endif %}
   <button class="btn btn-primary" onclick="location.href='/lk'">
     <span class="name-surname">{{ user_name }}</span>
     <img id="img" class="image square-image-rt" src="{{ image }}" alt="Фотография профиля">
@@ -27,6 +29,9 @@
     <li class="nav-item">
         <a class="nav-link" id="users-tab" data-toggle="tab" href="#users" role="tab" aria-controls="users" aria-selected="false" onclick="showTable('users-template')">Пользователи</a>
     </li>
+    <li class="nav-item">
+      <a class="nav-link" id="statuses-tab" data-toggle="tab" href="#statuses" role="tab" aria-controls="statuses" aria-selected="true" onclick="showTable('statuses-template')">Уровни доступа</a>
+  </li>
   </ul>
   <div class="tab-content" id="myTabContent">
       <div class="tab-pane fade show active" id="tickets" role="tabpanel" aria-labelledby="tickets-tab">
@@ -68,6 +73,28 @@
         </table>
     </div>
   </div>
+  <div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade" id="statuses" role="tabpanel" aria-labelledby="statuses-tab">
+        <table class="table" id="statuses-template">
+            <thead>
+                <tr>
+                    <th>ID пользователя</th>
+                    <th>Уровень доступа: </th>
+                    <th>Изменить уровень доступа</th>
+                    <th>Подтвердить</th>
+                </tr>
+            </thead>
+            {% for status in lvls %}
+            <tbody>
+                <th>{{ status[0] }}</th>
+                <th id="th-{{status[0]}}">{{ status[1] }}</th>
+                <th><input type="number" name="Введите уровень доступа" id="input-{{status[0]}}"></th>
+                <th><button class="btn btn-primary" id="btn-{{status[0]}}" onclick="changeStatus('{{status[0]}}')">Подтвердить</button></th>
+            </tbody>
+            {% endfor %}
+        </table>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -77,6 +104,23 @@ function showTable(tableId) {
   });
 
   document.getElementById(tableId).style.display = 'table';
+}
+
+function changeStatus(user_id) {
+  const new_status = document.getElementById(`input-${user_id}`).value;
+  // const submit_btn = document.getElementById(f`btn-${user_id}`)
+
+  if (new_status in [0, 1, 2, 3]) {
+    fetch(`/change_status?user_id=${Number(user_id)}&status=${Number(new_status)}`).then((data) => document.getElementById(`th-${user_id}`).innerText = new_status);
+    document.getElementById(`input-${user_id}`).value = '';
+  }
+}
+
+function test(user_id) {
+  if (user_id == 2)
+    console.log(123)
+  else
+    console.log(user_id);
 }
 </script>
 

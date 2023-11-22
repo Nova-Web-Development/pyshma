@@ -5,9 +5,11 @@
 {% block lk %}
 {% if isAuth %}
 <div class="rt">
-  <button class="btn btn-primary" onclick="location.href='/apanel'">
-    Панель управления
-  </button>
+  {% if lvl != "0" %}
+    <button class="btn btn-primary" onclick="location.href='/apanel'">
+      Панель управления
+    </button>
+  {% endif %}
   <button class="btn btn-primary" onclick="location.href='/lk'">
     <span class="name-surname">{{ user_name }}</span>
     <img id=" img" class="image square-image-rt" src="{{ image }}" alt="Фотография профиля">
@@ -21,13 +23,18 @@
 {% endif %}
 {% endblock lk %}
 {% block body %}
-<div class="text-center">
+<div class="container text-center form-login-reg">
     <form method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="ticket">Прикрепить чек</label>
-            <input type="file" class="form-control" name="ticket" id="ticket" required>
+            <div class="form-group justify-content-center center">
+              <button class="btn btn-primary">
+                <input type="file" class="form-control" name="ticket" id="ticket" required>
+                Прикрепить файл
+              </button>
+            </div>
         </div>
-        <button class="btn btn-success" type="submit">Отправить</button>
+        <button class="btn btn-primary" type="submit">Отправить</button>
     </form> 
 </div>
 {% endblock body %}
