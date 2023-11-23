@@ -25,7 +25,7 @@
         <div class="col-md-3 image-container">
             <!-- Изображение пользователя -->
             <figure class="image-container">
-                <img src="{{image}}" alt="Аватар" class="square-image img img-fluid rounded-circle" style="max-width: 250">
+                <img src="{{image_user}}" alt="Аватар" class="square-image img img-fluid rounded-circle" style="max-width: 250">
                 <figcaption class="text-center">
                     <h4 class="namesurname"></h4>
                 </figcaption>
@@ -38,7 +38,7 @@
             <!-- Поля с информацией -->
             <div class="row mt-3 profile-info">
                 <div class="col-md-6">
-                    <p><strong>Никнейм: {{ user_name }}</strong> <span id="vk_link"></span></p>
+                    <p><strong>Никнейм: {{ username }}</strong> <span id="vk_link"></span></p>
                     <p><strong>Email: {{ email }}</strong> <span id="lvl"></span></p>
                     <p><strong>Должность: {{ status }}</strong> <span id="date"></span></p>
                 </div>

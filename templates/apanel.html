@@ -39,6 +39,7 @@
               <thead>
                   <tr>
                       <th>ID пользователя</th>
+                      <th>Никнейм</th>
                       <th>Компания</th>
                       <th>Цена чека</th>
                   </tr>
@@ -46,6 +47,7 @@
               {% for ticket in tickets %}
               <tbody>
                   <th>{{ ticket[0] }}</th>
+                  <th>{{ nicknames[ticket[0] - 1] }}</th>
                   <th>{{ ticket[1] }}</th>
                   <th>{{ ticket[2] }}</th>
               </tbody>
@@ -61,6 +63,8 @@
                     <th>ID пользователя</th>
                     <th>Никнейм</th>
                     <th>Email</th>
+                    <th>Затраты</th>
+                    <th>Информация</th>
                 </tr>
             </thead>
             {% for user in users %}
@@ -68,6 +72,14 @@
                 <th>{{ user[0] }}</th>
                 <th>{{ user[1] }}</th>
                 <th>{{ user[2] }}</th>
+                <th> 
+                  {% if spends[user[0]] %}
+                    {{ spends[user[0]] }}
+                  {% else %}
+                    {{0}}
+                  {% endif %}
+                </th>
+                <th><button class="btn btn-primary" id="find-{{user[0]}}" onclick="location.href = '/user_info?user_id={{user[0]}}'">Поиск</button></th>
             </tbody>
             {% endfor %}
         </table>
@@ -79,6 +91,7 @@
             <thead>
                 <tr>
                     <th>ID пользователя</th>
+                    <th>Никнейм</th>
                     <th>Уровень доступа: </th>
                     <th>Изменить уровень доступа</th>
                     <th>Подтвердить</th>
@@ -87,6 +100,7 @@
             {% for status in lvls %}
             <tbody>
                 <th>{{ status[0] }}</th>
+                <th>{{ nicknames[status[0] - 1] }}</th>
                 <th id="th-{{status[0]}}">{{ status[1] }}</th>
                 <th><input type="number" name="Введите уровень доступа" id="input-{{status[0]}}"></th>
                 <th><button class="btn btn-primary" id="btn-{{status[0]}}" onclick="changeStatus('{{status[0]}}')">Подтвердить</button></th>
@@ -114,13 +128,6 @@ function changeStatus(user_id) {
     fetch(`/change_status?user_id=${Number(user_id)}&status=${Number(new_status)}`).then((data) => document.getElementById(`th-${user_id}`).innerText = new_status);
     document.getElementById(`input-${user_id}`).value = '';
   }
-}
-
-function test(user_id) {
-  if (user_id == 2)
-    console.log(123)
-  else
-    console.log(user_id);
 }
 </script>
 

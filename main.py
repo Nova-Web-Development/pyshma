@@ -65,7 +65,7 @@ def get_users():
 @app.route('/user_info')
 @login_required
 def user_info():
-    if get_status(userlogin) == "0":
+    if get_status(userlogin.get_id()) == "0":
         return redirect('/lk')
     
     statuses = {
@@ -79,7 +79,10 @@ def user_info():
     cur = get_db().cursor()
     cur.execute('''SELECT * FROM users WHERE id = ?''', (user_id))
     res = cur.fetchall()
-    return render_template('user_info.html', lvl=get_status(userlogin.get_id()), isAuth=True, status=statuses[get_status(user_id)], user_name=res[0][1], email=res[0][1], image=get_image(res[0][0]))
+    return render_template('user_info.html', lvl=get_status(userlogin.get_id()),
+                           isAuth=True, status=statuses[get_status(user_id)], user_name=userlogin.get_name(),
+                           username=res[0][1], email=res[0][2], image=get_image(userlogin.get_id()),
+                           image_user=get_image(res[0][0]))
 
 @app.route('/change_status')
 @login_required
@@ -130,7 +133,8 @@ def change_image():
         get_db().commit()
         return redirect('/')
     if current_user.is_authenticated:
-        return render_template('load_image.html', lvl=get_status(userlogin.get_id()), isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
+        return render_template('load_image.html', lvl=get_status(userlogin.get_id()),
+                               isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
     else:
         return render_template('load_image.html', isAuth=False)
 
@@ -154,7 +158,8 @@ def register():
         get_db().commit()
         return redirect('/login')
     if current_user.is_authenticated:
-        return render_template('register.html', lvl=get_status(userlogin.get_id()), isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
+        return render_template('register.html', lvl=get_status(userlogin.get_id()),
+                               isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
     else:
         return render_template('register.html', isAuth=False)
 
@@ -185,7 +190,8 @@ def login():
             else:
                 return redirect('/login')
     if current_user.is_authenticated:
-        return render_template('login.html', lvl=get_status(userlogin.get_id()), isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
+        return render_template('login.html', lvl=get_status(userlogin.get_id()),
+                               isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
     else:
         return render_template('login.html', isAuth=False)
 
@@ -196,7 +202,8 @@ def unauthorized():
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        return render_template('index.html', lvl=get_status(userlogin.get_id()), isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
+        return render_template('index.html', lvl=get_status(userlogin.get_id()),
+                               isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
     else:
         return render_template('index.html', isAuth=False)
 
@@ -208,9 +215,10 @@ def form():
         values = (str(userlogin.get_id()), request.form['company'], request.form['price'])
         cur.execute('''INSERT INTO tickets (user_id, company, price) VALUES (?, ?, ?);''', values)
         get_db().commit()
-        return redirect('/')
+        return redirect('/lk')
     if current_user.is_authenticated:
-        return render_template('form.html', lvl=get_status(userlogin.get_id()), isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
+        return render_template('form.html', lvl=get_status(userlogin.get_id()),
+                               isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
     else:
         return render_template('form.html', isAuth=False)
 
@@ -231,7 +239,8 @@ def load_image():
         get_db().commit()
         return redirect('/')
     if current_user.is_authenticated:
-        return render_template('load_image.html', lvl=get_status(userlogin.get_id()), isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
+        return render_template('load_image.html', lvl=get_status(userlogin.get_id()),
+                               isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
     else:
         return render_template('load_image.html', isAuth=False)
 
@@ -253,7 +262,10 @@ def lk():
     }
 
     if current_user.is_authenticated:
-        return render_template('lk.html', lvl=get_status(userlogin.get_id()), isAuth=True, status=statuses[get_status(userlogin.get_id())], user_name=userlogin.get_name(), email=userlogin.get_email(), image=get_image(userlogin.get_id()))
+        return render_template('lk.html', lvl=get_status(userlogin.get_id()),
+                               isAuth=True, status=statuses[get_status(userlogin.get_id())],
+                               user_name=userlogin.get_name(), email=userlogin.get_email(),
+                               image=get_image(userlogin.get_id()))
     else:
         return render_template('lk.html', isAuth=False)
 
@@ -268,8 +280,25 @@ def apanel():
         res = cur.fetchall()
         cur.execute('''SELECT id, nickname, email FROM users WHERE 1''')
         res1 = cur.fetchall()
+        cur.execute('''SELECT nickname FROM users WHERE 1''')
+        res2 = cur.fetchall()
+        nicknames = []
+        for i in res2:
+            nicknames.append(i[0])
+
+        spends = {}
+        for i in res:
+            try:
+                spends[i[0]] += i[2]
+            except:
+                spends[i[0]] = i[2]
+        
         if current_user.is_authenticated:
-            return render_template('apanel.html', lvls=get_statuses(), lvl = get_status(userlogin.get_id()), isAuth=True, tickets=res, users=res1, user_name=userlogin.get_name(), email=userlogin.get_email(), image=get_image(userlogin.get_id()))
+            return render_template(
+                'apanel.html', spends=spends, lvls=get_statuses(),
+                nicknames=nicknames, lvl = get_status(userlogin.get_id()),
+                isAuth=True, tickets=res, users=res1, user_name=userlogin.get_name(),
+                email=userlogin.get_email(), image=get_image(userlogin.get_id()))
         else:
             return render_template('apanel.html', isAuth=False)
 
