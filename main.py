@@ -53,28 +53,174 @@ def get_users():
     res = cur.fetchall()
     return jsonify(res)
 
-@app.route('/api/getinfo', methods=['GET'])
-def is_registered():
-    email = request.args.get('email')
-    values = (email,)
+@app.route('/user_info')
+@login_required
+def user_info():
+    if get_status(userlogin.get_id()) == "0":
+        return redirect('/lk')
+    
+    statuses = {
+        "0": "Сотрудник",
+        "1": "Администратор",
+        "2": "Директор",
+        "3": "Разработчик"
+    }
+    
+    user_id = request.args.get('user_id')
     cur = get_db().cursor()
-    cur.execute('''SELECT * FROM users WHERE email = ?;''', values)
+    cur.execute('''SELECT * FROM users WHERE id = ?''', (user_id))
     res = cur.fetchall()
-    return jsonify(res)
+    return render_template('user_info.html', lvl=get_status(userlogin.get_id()),
+                           isAuth=True, status=statuses[get_status(user_id)], user_name=userlogin.get_name(),
+                           username=res[0][1], email=res[0][2], image=get_image(userlogin.get_id()),
+                           image_user=get_image(res[0][0]))
+
+@app.route('/change_status')
+@login_required
+def change_status():
+    if get_status(userlogin.get_id()) == "0":
+        return redirect('/lk')
+    
+    user_id = request.args.get('user_id')
+    status = request.args.get('status')
+    cur = get_db().cursor()
+    cur.execute('''UPDATE statuses SET status = ? WHERE user_id = ?;''', (status, user_id))
+    get_db().commit()
+    return '200'
+
+
+def get_status(user_id):
+    cur = get_db().cursor()
+    cur.execute('''SELECT status FROM statuses WHERE user_id = ?;''', str(user_id))
+    res = cur.fetchall()
+    return str(res[0][0])
+
+def get_statuses():
+    cur = get_db().cursor()
+    cur.execute('''SELECT * FROM statuses WHERE 1;''')
+    res = cur.fetchall()
+    return res
+
+def get_image(user_id):
+    cur = get_db().cursor()
+    cur.execute('''SELECT image FROM images WHERE user_id = ?;''', str(user_id))
+    res = cur.fetchall()
+    return str(res[0][0])
+
+def get_dishes():
+    cur = get_db().cursor()
+    cur.execute('''SELECT name, price FROM first WHERE 1;''')
+    first = list(cur.fetchall())
+    cur.execute('''SELECT name, price FROM second WHERE 1;''')
+    second = list(cur.fetchall())
+    cur.execute('''SELECT name, price FROM salads WHERE 1;''')
+    salads = list(cur.fetchall())
+    cur.execute('''SELECT name, price FROM drinks WHERE 1;''')
+    drinks = list(cur.fetchall())
+    cur.execute('''SELECT name, price FROM garnirs WHERE 1;''')
+    garnirs = list(cur.fetchall())
+
+    return first, second, salads, drinks, garnirs
+
+def get_first(id):
+    cur = get_db().cursor()
+    cur.execute('''SELECT name, price FROM first WHERE id = ?;''', str(id+1))
+    res = cur.fetchall()
+    return list(res)[0][0], list(res)[0][1]
+
+def get_second(id):
+    cur = get_db().cursor()
+    cur.execute('''SELECT name, price FROM second WHERE id = ?;''', str(id+1))
+    res = cur.fetchall()
+    return list(res)[0][0], list(res)[0][1]
+
+def get_salad(id):
+    cur = get_db().cursor()
+    cur.execute('''SELECT name, price FROM salads WHERE id = ?;''', str(id+1))
+    res = cur.fetchall()
+    return list(res)[0][0], list(res)[0][1]
+
+def get_drink(id):
+    cur = get_db().cursor()
+    cur.execute('''SELECT name, price FROM drinks WHERE id = ?;''', str(id+1))
+    res = cur.fetchall()
+    return list(res)[0][0], list(res)[0][1]
+
+def get_garnir(id):
+    cur = get_db().cursor()
+    cur.execute('''SELECT name, price FROM garnirs WHERE id = ?;''', str(id+1))
+    res = cur.fetchall()
+    return list(res)[0][0], list(res)[0][1]
+
+@app.route('/add_order')
+@login_required
+def add_order():
+    user_id=userlogin.get_id()
+    first_id = request.args.get('first')
+    second_id = request.args.get('second')
+    salad_id = request.args.get('salad')
+    drink_id = request.args.get('drink')
+    garnir_id = request.args.get('garnir')
+
+    # return get_first(int(first_id))
+    
+    first, price1 = get_first(int(first_id))
+    second, price2 = get_second(int(second_id))
+    salad, price3 = get_salad(int(salad_id))
+    drink, price4 = get_drink(int(drink_id))
+    garnir, price5 = get_garnir(int(garnir_id))
+
+    total_price = sum([price1, price2, price3, price4, price5])
+
+    cur = get_db().cursor()
+    values = (user_id, first, second, garnir, salad, drink, total_price)
+    cur.execute('''INSERT INTO orders (user_id, first, second, garnir, salad, drink, total_price) VALUES (?, ?, ?, ?, ?, ?, ?);''', values)
+    get_db().commit()
+
+@app.route('/change_image', methods=['POST', 'GET'])
+@login_required
+def change_image():
+    if request.method == 'POST':
+        image_path = request.files['ticket']
+        upload_url = "https://api.imgbb.com/1/upload"
+        files = {'image': (image_path.filename, image_path, image_path.mimetype)}
+        data = {'key': API_IMGBB}
+        response = requests.post(url=upload_url, files=files, data=data)
+        response_data = response.json()
+        image_url = response_data.get("data", {}).get("url")
+        cur = get_db().cursor()
+        values = (image_url, userlogin.get_id())
+        cur.execute('''UPDATE images SET image = ? WHERE user_id = ?;''', values)
+        get_db().commit()
+        return redirect('/')
+    if current_user.is_authenticated:
+        return render_template('load_image.html', lvl=get_status(userlogin.get_id()),
+                               isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
+    else:
+        return render_template('load_image.html', isAuth=False)
 
 @app.route('/register', methods=['POST', 'GET'])
 def register():
     if request.method == 'POST':
         user_name = request.form['username']
         email = request.form['email']
-        password = hashlib.md5(request.form['password1'].encode()).hexdigest()
+        password = hashlib.md5(request.form['password'].encode()).hexdigest()
         cur = get_db().cursor()
-        values = (user_name, email, password)
-        cur.execute('''INSERT INTO users (nickname, email, password) VALUES (?, ?, ?);''', values)
+        cur.execute('''SELECT * FROM users WHERE 1''')
+        res = cur.fetchall()
+        if len(res) > 0:
+            last_id = str(res[-1][0]+1)
+        else:
+            last_id = "1"
+        values = (last_id, user_name, email, password)
+        cur.execute('''INSERT INTO users (id, nickname, email, password) VALUES (?, ?, ?, ?);''', values)
+        cur.execute('''INSERT INTO statuses (user_id, status) VALUES (?, ?);''', (last_id, 0))
+        cur.execute('''INSERT INTO images (user_id, image) VALUES (?, ?);''', (last_id, 'https://gamedev.ru/files/images/ieju7eh0-vu.jpg'))
         get_db().commit()
-        return redirect('/')
+        return redirect('/login')
     if current_user.is_authenticated:
-        return render_template('register.html', isAuth=True, user_name=userlogin.get_name(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+        return render_template('register.html', lvl=get_status(userlogin.get_id()),
+                               isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
     else:
         return render_template('register.html', isAuth=False)
 
@@ -90,20 +236,23 @@ def login():
         if res:
             if password == res[0][3]:
                 user = {
-                    'id': res[0][0],
-                    'nickname': res[0][1],
+                    'user_id': res[0][0],
+                    'user_name': res[0][1],
                     'email': res[0][2],
-                    'password': res[0][3]
+                    'password': res[0][3],
+                    'status': get_status(res[0][0]),
+                    'image': get_image(res[0][0])
                 }
                 global userlogin
                 userlogin = UserLogin().create(user)
                 login_user(userlogin)
                 get_db().commit()
-                return redirect('/')
+                return redirect('/lk')
             else:
                 return redirect('/login')
     if current_user.is_authenticated:
-        return render_template('login.html', isAuth=True, user_name=userlogin.get_name(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+        return render_template('login.html', lvl=get_status(userlogin.get_id()),
+                               isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
     else:
         return render_template('login.html', isAuth=False)
 
@@ -114,7 +263,8 @@ def unauthorized():
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        return render_template('index.html', isAuth=True, user_name=userlogin.get_name(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+        return render_template('index.html', lvl=get_status(userlogin.get_id()),
+                               isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
     else:
         return render_template('index.html', isAuth=False)
 
@@ -123,16 +273,26 @@ def index():
 def form():
     if request.method == 'POST':
         cur = get_db().cursor()
-        values = (request.form['user_id'], request.form['company'], request.form['price'])
+        values = (str(userlogin.get_id()), request.form['company'], request.form['price'])
         cur.execute('''INSERT INTO tickets (user_id, company, price) VALUES (?, ?, ?);''', values)
         get_db().commit()
-        return redirect('/')
+        return redirect('/lk')
     if current_user.is_authenticated:
-        return render_template('form.html', isAuth=True, user_name=userlogin.get_name(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+        return render_template('form.html', lvl=get_status(userlogin.get_id()),
+                               isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
     else:
         return render_template('form.html', isAuth=False)
 
-@app.route('/api/loadimage', methods=['POST', 'GET'])
+
+@app.route('/create_order', methods=['POST', 'GET'])
+@login_required
+def create_pred_order():
+    first, second, salads, drinks, garnirs = get_dishes()
+    return render_template('create_pred_order.html', lvl=get_status(userlogin.get_id()),
+                               isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()), 
+                               first=first, second=second, salads=salads, drinks=drinks, garnirs=garnirs, id=userlogin.get_id())
+
+@app.route('/load_image', methods=['POST', 'GET'])
 @login_required
 def load_image():
     if request.method == 'POST':
@@ -144,14 +304,73 @@ def load_image():
         response_data = response.json()
         image_url = response_data.get("data", {}).get("url")
         cur = get_db().cursor()
-        values = (123, image_url)
+        values = (userlogin.get_id(), image_url)
         cur.execute('''INSERT INTO tickets_code (user_id, link) VALUES (?, ?);''', values)
         get_db().commit()
         return redirect('/')
     if current_user.is_authenticated:
-        return render_template('load_image.html', isAuth=True, user_name=userlogin.get_name(), image='https://cs11.pikabu.ru/post_img/big/2020/08/12/9/159724243514442854.jpg')
+        return render_template('load_image.html', lvl=get_status(userlogin.get_id()),
+                               isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
     else:
         return render_template('load_image.html', isAuth=False)
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect('/')
+
+@app.route('/lk')
+@login_required
+def lk():
+    statuses = {
+        "0": "Сотрудник",
+        "1": "Администратор",
+        "2": "Директор",
+        "3": "Разработчик"
+    }
+
+    if current_user.is_authenticated:
+        return render_template('lk.html', lvl=get_status(userlogin.get_id()),
+                               isAuth=True, status=statuses[get_status(userlogin.get_id())],
+                               user_name=userlogin.get_name(), email=userlogin.get_email(),
+                               image=get_image(userlogin.get_id()))
+    else:
+        return render_template('lk.html', isAuth=False)
+
+@app.route('/apanel')
+@login_required
+def apanel():
+    if get_status(userlogin.get_id()) == "0":
+        return redirect('/lk')
+    else:
+        cur = get_db().cursor()
+        cur.execute('''SELECT * FROM tickets WHERE 1''')
+        res = cur.fetchall()
+        cur.execute('''SELECT id, nickname, email FROM users WHERE 1''')
+        res1 = cur.fetchall()
+        cur.execute('''SELECT nickname FROM users WHERE 1''')
+        res2 = cur.fetchall()
+        nicknames = []
+        for i in res2:
+            nicknames.append(i[0])
+
+        spends = {}
+        for i in res:
+            try:
+                spends[i[0]] += i[2]
+            except:
+                spends[i[0]] = i[2]
+        
+        if current_user.is_authenticated:
+            return render_template(
+                'apanel.html', spends=spends, lvls=get_statuses(),
+                nicknames=nicknames, lvl = get_status(userlogin.get_id()),
+                isAuth=True, tickets=res, users=res1, user_name=userlogin.get_name(),
+                email=userlogin.get_email(), image=get_image(userlogin.get_id()))
+        else:
+            return render_template('apanel.html', isAuth=False)
 
 if __name__ == '__main__':
     app.teardown_appcontext(close_db)

@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<link rel="stylesheet" href="/static/css/style.css">
+{% endblock title %}
+
+{% block lk %}
+{% if isAuth %}
+<div class="rt">
+  {% if lvl != "0" %}
+    <button class="btn btn-primary" onclick="location.href='/apanel'">
+      Панель управления
+    </button>
+  {% endif %}
+  <button class="btn btn-primary" onclick="location.href='/lk'">
+    <span class="name-surname">{{ user_name }}</span>
+    <img id="img" class="image square-image-rt" src="{{ image }}" alt="Фотография профиля">
+  </button>
+</div>
+{% else %}
+<div class="rt">
+  <button style="margin-left: 10px;" type="submit" class="nav-btn-2 btn btn-primary register" onclick="location.href = '/register'">Зарегистрироваться</button>
+  <button style="margin-left: 10px;" type="submit" class="nav-btn-2 btn btn-primary login" onclick="location.href = '/login'">Войти</button>
+</div>
+{% endif %}
+{% endblock lk %}
+{% block body %}
+<div class="container mt-3">
+    <div class="row profile">
+        <div class="col-md-3 image-container">
+            <!-- Изображение пользователя -->
+            <figure class="image-container">
+                <img src="{{image}}" alt="Аватар" class="square-image img img-fluid rounded-circle" style="max-width: 250">
+                <figcaption class="text-center">
+                    <h4 class="namesurname"></h4>
+                    <button class="btn btn-primary" onclick="location.href = '/change_image'">Сменить картинку</button>
+                    <p></p>
+                    <button class="btn btn-primary" onclick="location.href = '/logout'">Выйти</button>
+                </figcaption>
+            </figure>
+        </div>
+        <div class="col-md-9">
+            <!-- Имя и фамилия пользователя -->
+            <h3 style="color: azure;">Информация о пользователе</h3>
+            <br>
+            <!-- Поля с информацией -->
+            <div class="row mt-3 profile-info">
+                <div class="col-md-6">
+                    <p style="color: azure;"><strong>Никнейм: {{ user_name }}</strong> <span id="vk_link"></span></p>
+                    <p style="color: azure;"><strong>Email: {{ email }}</strong> <span id="lvl"></span></p>
+                    <p style="color: azure;"><strong>Должность: {{ status }}</strong> <span id="date"></span></p>
+                    <button class="btn btn-primary" onclick="location.href = '/load_image'">Загрузить чек</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}

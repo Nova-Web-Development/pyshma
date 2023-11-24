@@ -3,6 +3,29 @@ html {
     height: 100%;
 }
 
+.image-container {
+    max-width: 300px;
+    max-height: 300px;
+    overflow: hidden;
+  }
+
+.resized-image {
+    width: 100%;
+    height: auto;
+  }
+
+.square-image-rt {
+    width: 20%;
+    height: auto;
+    aspect-ratio: 1 / 1;  /* This ensures that the aspect ratio is 1:1 (square) */
+}
+
+.square-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;  /* This ensures that the aspect ratio is 1:1 (square) */
+}
+
 body {
     width: auto;
     height: auto;
@@ -82,7 +105,7 @@ a.text {
 }
 
 .main {
-    background-image: url('https://sun9-64.userapi.com/impg/3s2c6Ng3SgP3xHhJOj7CsS8blpLsDQuqtOxiUQ/H6TrADKjbkQ.jpg?size=1578x447&quality=96&sign=750e15093ad4776530a4f13e527d85fd&type=album');
+    background-image: url('https://cdn.iportal.ru/preview/news/articles/c60a434acf3b949b410572323b9a0d610ae8ed62_1920.jpg');
 }
 
 .rt {
@@ -122,9 +145,10 @@ a.text {
     margin-left: 7%;
     margin-right: 7%;
     margin-top: 5%;
-    background-color: antiquewhite;
+    margin-bottom: 5%;
+    background-color: #666;
     border-radius: 20px;
-    padding: auto;
+    padding: 2%;
 }
 
 .form {
@@ -135,22 +159,37 @@ a.text {
     border: initial;
 }
 
+
+
 .table {
-    width: 100%;
-    margin-bottom: 20px;
-    border: 1px solid #dddddd;
-    border-collapse: collapse;
+	width: 100%;
+	border: none;
+	margin-bottom: 20px;
 }
-
-.table th {
-    font-weight: bold;
-    padding: 5px;
-    background: #efefef;
-    border: 1px solid #dddddd;
+.table thead th {
+	font-weight: bold;
+	text-align: left;
+	border: none;
+	padding: 10px 15px;
+	background: #666;
+	font-size: 14px;
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
 }
-
-.table td {
-    border: 1px solid #dddddd;
-    padding: 5px;
+.table tbody td {
+	text-align: left;
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+	padding: 10px 15px;
+	font-size: 14px;
+	vertical-align: top;
 }
-
+.table thead tr th:first-child, .table tbody tr td:first-child {
+	border-left: none;
+}
+.table thead tr th:last-child, .table tbody tr td:last-child {
+	border-right: none;
+}
+.table tbody tr:nth-child(even){
+	background: #f3f3f3;
+}

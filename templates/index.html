@@ -1,16 +1,19 @@
 {% extends 'base.html' %}
 
 {% block title %}
+<link rel="stylesheet" href="/static/css/style.css">
 {% endblock title %}
 {% block lk %}
 {% if isAuth %}
 <div class="rt">
-  <button class="btn btn-primary" onclick="location.href='/apanel'">
-    Панель управления
-  </button>
+  {% if lvl != "0" %}
+    <button class="btn btn-primary" onclick="location.href='/apanel'">
+      Панель управления
+    </button>
+  {% endif %}
   <button class="btn btn-primary" onclick="location.href='/lk'">
     <span class="name-surname">{{ user_name }}</span>
-    <img id=" img" class="image" src="{{ image }}" alt="Фотография профиля">
+    <img id=" img" class="image square-image-rt" src="{{ image }}" alt="Фотография профиля">
   </button>
 </div>
 {% else %}
@@ -23,16 +26,16 @@
 {% block body %}
   <div class="jumbotron text-center main">
     <h1></h1>
-    <p>Сервис корпоративного питания для сотрудников СберБанка</p>
-    <a href="#" class="btn btn-primary btn-lg">Личный кабинет</a>
+    <p>Сервис корпоративного питания для сотрудников от Кейтеринбурга</p>
+    <a href="/create_order" class="btn btn-primary btn-lg">Заказать обед</a>
   </div>
   <section class="container py-5">
     <div class="text-center">
-      <h2>Помощь</h2>
-      <p class="lead">by NovaDev</p>
+      <h2 style="color: white;">Помощь</h2>
+      <p style="color: white;" class="lead">by NovaDev</p>
       <ul class="list-inline">
         <li class="list-inline-item"><a href="https://vk.com/artyomjk">VK</a></li>
-        <li class="list-inline-item"><a href="https://github.com/artemgoncarov">Github</a></li>
+        <li class="list-inline-item"><a href="https://github.com/Nova-Web-Development">Github</a></li>
         <li class="list-inline-item"><a href="https://t.me/artyomjk">Telegram</a></li>
       </ul>
     </div>
