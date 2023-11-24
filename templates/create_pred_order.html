@@ -1,8 +1,35 @@
 {% extends 'base.html' %}
+
 {% block title %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
 <link rel='stylesheet prefetch' href='http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css'>
 <link rel="stylesheet" href="/static/css/style.css">
+<style>
+  select {
+  width: 140px;
+  height: 35px;
+  padding: 4px;
+  border-radius:4px;
+  box-shadow: 2px 2px 8px #999;
+  background: #eee;
+  border: none;
+  outline: none;
+  display: inline-block;
+  -webkit-appearance:none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  }
+  .user-input {
+    background-color: #f2f2f2; /* Задаем серый цвет фона */
+    color: #3b3838; /* Задаем серый цвет текста */
+    border: 1px solid #3b3838; /* Задаем серый цвет границы */
+  }
+  p.sign-in {
+    display: inline-block;
+    margin: 0; /* Убирает внешние отступы у p элемента */
+  }
+</style>
 {% endblock title %}
 {% block lk %}
 {% if isAuth %}
@@ -76,47 +103,69 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="position: absolute">
 
 <div class="container">
   <div class="wrapper">
-    <div class="header">
-      <h3 class="sign-in">Регистрация</h3>
-      <div class="button">
-        <a href="/login" style="text-decoration: none; color: white;">Вход</a>
-      </div>
-    </div>
+    <div class="header"></div>
     <div class="clear"></div> 
-    <form onsubmit="return verifyPassword()" method="post">
-        <div>
-          <label class="user" for="text">
-            <svg viewBox="0 0 32 32">
-                      <g filter="">
-                        <use xlink:href="#man-people-user"></use>
-                      </g>
-                    </svg>
-          </label>
-          <input class="user-input" type="text" name="username" id="username" placeholder="Логин"  />
-          <label class="user" for="text">
-            <svg viewBox="0 0 32 32">
-                      <g filter="">
-                        <use xlink:href="#man-people-user"></use>
-                      </g>
-                    </svg>
-          </label>
-          <input class="user-input" type="text" name="email" id="email" placeholder="Email"  />
-        </div> 
-        <div>
-          <label class="lock" for="password">
-            <svg viewBox="0 0 32 32">
-              <g filter="">
-                <use xlink:href="#lock-locker"></use>
-                </g>
-              </svg>  
-          </label>
-          <input type="password" name="password" id="password" placeholder="Пароль" />
-        </div> 
+    <form method="post" onsubmit="event.preventDefault(); request();">
+      <!-- <div>
+        <label for="date" class="sign-in">Дата получения заказа</label>
+        <input class="user-input" type="date" name="date" id="date" placeholder="Дата получения заказа" />
+      </div> -->
       <div>
-        <input type="submit" value="Войти" />
+        <label for="first" class="sign-in">Первое блюдо</label>
+        <br>
+        <p> .</p>
+        <select class="user-input" id="first" name="first">
+          {% for dish in first %}
+            <option value="">{{dish[0]}} - {{dish[1]}}₽</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="second" class="sign-in">Второе блюдо</label>
+        <br>
+        <p>.</p>
+        <select class="user-input" id="second" name="second">
+          {% for dish in second %}
+            <option value="">{{dish[0]}} - {{dish[1]}}₽</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="salad" class="sign-in">Салат</label>
+        <br>
+        <p>.</p>
+        <select class="user-input" id="salad" name="salad">
+          {% for dish in salads %}
+            <option value="">{{dish[0]}} - {{dish[1]}}₽</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="drink" class="sign-in">Напиток</label>
+        <br>
+        <p>.</p>
+        <select class="user-input" id="drink" name="drink">
+          {% for dish in drinks %}
+            <option value="">{{dish[0]}} - {{dish[1]}}₽</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <input class="sbm" type="submit" value="Отправить" />
       </div>
     </form>  
   </div>
 </div>
 <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
-{% endblock body%}
+<script>
+  function request() {
+      const first = document.getElementById('first').selectedIndex;
+      const second = document.getElementById('second').selectedIndex;
+      const salad = document.getElementById('salad').selectedIndex;
+      const drink = document.getElementById('drink').selectedIndex;
+
+      fetch (`/add_order?first=${first}&second=${second}&salad=${salad}&drink=${drink}`).then((data) => location.href = '/lk')
+      // console.log(first, second, salad, drink)
+  }
+</script>
+{% endblock body %}

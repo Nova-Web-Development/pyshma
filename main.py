@@ -116,6 +116,66 @@ def get_image(user_id):
     res = cur.fetchall()
     return str(res[0][0])
 
+def get_dishes():
+    cur = get_db().cursor()
+    cur.execute('''SELECT name, price FROM first WHERE 1;''')
+    first = list(cur.fetchall())
+    cur.execute('''SELECT name, price FROM second WHERE 1;''')
+    second = list(cur.fetchall())
+    cur.execute('''SELECT name, price FROM salads WHERE 1;''')
+    salads = list(cur.fetchall())
+    cur.execute('''SELECT name, price FROM drinks WHERE 1;''')
+    drinks = list(cur.fetchall())
+
+    return first, second, salads, drinks
+
+def get_first(id):
+    cur = get_db().cursor()
+    cur.execute('''SELECT name, price FROM first WHERE id = ?;''', str(id+1))
+    res = cur.fetchall()
+    return list(res)[0][0], list(res)[0][1]
+
+def get_second(id):
+    cur = get_db().cursor()
+    cur.execute('''SELECT name, price FROM second WHERE id = ?;''', str(id+1))
+    res = cur.fetchall()
+    return list(res)[0][0], list(res)[0][1]
+
+def get_salad(id):
+    cur = get_db().cursor()
+    cur.execute('''SELECT name, price FROM salads WHERE id = ?;''', str(id+1))
+    res = cur.fetchall()
+    return list(res)[0][0], list(res)[0][1]
+
+def get_drink(id):
+    cur = get_db().cursor()
+    cur.execute('''SELECT name, price FROM drinks WHERE id = ?;''', str(id+1))
+    res = cur.fetchall()
+    return list(res)[0][0], list(res)[0][1]
+
+@app.route('/add_order')
+@login_required
+def add_order():
+    user_id=userlogin.get_id()
+    first_id = request.args.get('first')
+    second_id = request.args.get('second')
+    salad_id = request.args.get('salad')
+    drink_id = request.args.get('drink')
+
+    # return get_first(int(first_id))
+    
+    first, price1 = get_first(int(first_id))
+    second, price2 = get_first(int(second_id))
+    salad, price3 = get_first(int(salad_id))
+    drink, price4 = get_first(int(drink_id))
+
+    total_price = sum([price1, price2, price3, price4])
+
+    cur = get_db().cursor()
+    values = (user_id, first, second, salad, drink, total_price)
+    cur.execute('''INSERT INTO orders (user_id, first, second, salad, drink, total_price) VALUES (?, ?, ?, ?, ?, ?);''', values)
+    get_db().commit()
+
 @app.route('/change_image', methods=['POST', 'GET'])
 @login_required
 def change_image():
@@ -221,6 +281,15 @@ def form():
                                isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
     else:
         return render_template('form.html', isAuth=False)
+
+
+@app.route('/create_order', methods=['POST', 'GET'])
+@login_required
+def create_pred_order():
+    first, second, salads, drinks = get_dishes()
+    return render_template('create_pred_order.html', lvl=get_status(userlogin.get_id()),
+                               isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()), 
+                               first=first, second=second, salads=salads, drinks=drinks, id=userlogin.get_id())
 
 @app.route('/load_image', methods=['POST', 'GET'])
 @login_required
