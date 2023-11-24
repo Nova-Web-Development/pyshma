@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 
 {% block title %}
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css"> -->
+<link rel='stylesheet prefetch' href='http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css'>
 <link rel="stylesheet" href="/static/css/style.css">
 {% endblock title %}
 
@@ -65,18 +67,18 @@
         <table class="table" id="users-template">
             <thead>
                 <tr>
-                    <th>ID пользователя</th>
-                    <th>Никнейм</th>
-                    <th>Email</th>
+                    <th style="color: azure">ID пользователя</th>
+                    <th style="color: azure">Никнейм</th>
+                    <th style="color: azure">Email</th>
                     <!-- <th>Затраты</th> -->
-                    <th>Информация</th>
+                    <th style="color: azure">Информация</th>
                 </tr>
             </thead>
             {% for user in users %}
             <tbody>
-                <th>{{ user[0] }}</th>
-                <th>{{ user[1] }}</th>
-                <th>{{ user[2] }}</th>
+                <th style="color: azure">{{ user[0] }}</th>
+                <th style="color: azure">{{ user[1] }}</th>
+                <th style="color: azure">{{ user[2] }}</th>
                 <!-- <th> 
                   {% if spends[user[0]] %}
                     {{ spends[user[0]] }}
@@ -95,19 +97,19 @@
         <table class="table" id="statuses-template">
             <thead>
                 <tr>
-                    <th>ID пользователя</th>
-                    <th>Никнейм</th>
-                    <th>Уровень доступа: </th>
-                    <th>Изменить уровень доступа</th>
-                    <th>Подтвердить</th>
+                    <th style="color: azure">ID пользователя</th>
+                    <th style="color: azure">Никнейм</th>
+                    <th style="color: azure">Уровень доступа: </th>
+                    <th style="color: azure">Изменить уровень доступа</th>
+                    <th style="color: azure">Подтвердить</th>
                 </tr>
             </thead>
             {% for status in lvls %}
             <tbody>
-                <th>{{ status[0] }}</th>
-                <th>{{ nicknames[status[0] - 1] }}</th>
-                <th id="th-{{status[0]}}">{{ status[1] }}</th>
-                <th><input type="number" name="Введите уровень доступа" id="input-{{status[0]}}"></th>
+                <th style="color: azure">{{ status[0] }}</th>
+                <th style="color: azure">{{ nicknames[status[0] - 1] }}</th>
+                <th style="color: azure" id="th-{{status[0]}}">{{ status[1] }}</th>
+                <th style="color: azure"><input type="number" name="Введите уровень доступа" id="input-{{status[0]}}"></th>
                 <th><button class="btn btn-primary" id="btn-{{status[0]}}" onclick="changeStatus('{{status[0]}}')">Подтвердить</button></th>
             </tbody>
             {% endfor %}
