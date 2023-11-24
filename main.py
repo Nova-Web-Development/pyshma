@@ -126,8 +126,10 @@ def get_dishes():
     salads = list(cur.fetchall())
     cur.execute('''SELECT name, price FROM drinks WHERE 1;''')
     drinks = list(cur.fetchall())
+    cur.execute('''SELECT name, price FROM garnirs WHERE 1;''')
+    garnirs = list(cur.fetchall())
 
-    return first, second, salads, drinks
+    return first, second, salads, drinks, garnirs
 
 def get_first(id):
     cur = get_db().cursor()
@@ -153,6 +155,12 @@ def get_drink(id):
     res = cur.fetchall()
     return list(res)[0][0], list(res)[0][1]
 
+def get_garnir(id):
+    cur = get_db().cursor()
+    cur.execute('''SELECT name, price FROM garnirs WHERE id = ?;''', str(id+1))
+    res = cur.fetchall()
+    return list(res)[0][0], list(res)[0][1]
+
 @app.route('/add_order')
 @login_required
 def add_order():
@@ -161,19 +169,21 @@ def add_order():
     second_id = request.args.get('second')
     salad_id = request.args.get('salad')
     drink_id = request.args.get('drink')
+    garnir_id = request.args.get('garnir')
 
     # return get_first(int(first_id))
     
     first, price1 = get_first(int(first_id))
-    second, price2 = get_first(int(second_id))
-    salad, price3 = get_first(int(salad_id))
-    drink, price4 = get_first(int(drink_id))
+    second, price2 = get_second(int(second_id))
+    salad, price3 = get_salad(int(salad_id))
+    drink, price4 = get_drink(int(drink_id))
+    garnir, price5 = get_garnir(int(garnir_id))
 
-    total_price = sum([price1, price2, price3, price4])
+    total_price = sum([price1, price2, price3, price4, price5])
 
     cur = get_db().cursor()
-    values = (user_id, first, second, salad, drink, total_price)
-    cur.execute('''INSERT INTO orders (user_id, first, second, salad, drink, total_price) VALUES (?, ?, ?, ?, ?, ?);''', values)
+    values = (user_id, first, second, garnir, salad, drink, total_price)
+    cur.execute('''INSERT INTO orders (user_id, first, second, garnir, salad, drink, total_price) VALUES (?, ?, ?, ?, ?, ?, ?);''', values)
     get_db().commit()
 
 @app.route('/change_image', methods=['POST', 'GET'])
@@ -286,10 +296,10 @@ def form():
 @app.route('/create_order', methods=['POST', 'GET'])
 @login_required
 def create_pred_order():
-    first, second, salads, drinks = get_dishes()
+    first, second, salads, drinks, garnirs = get_dishes()
     return render_template('create_pred_order.html', lvl=get_status(userlogin.get_id()),
                                isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()), 
-                               first=first, second=second, salads=salads, drinks=drinks, id=userlogin.get_id())
+                               first=first, second=second, salads=salads, drinks=drinks, garnirs=garnirs, id=userlogin.get_id())
 
 @app.route('/load_image', methods=['POST', 'GET'])
 @login_required

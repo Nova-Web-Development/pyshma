@@ -131,6 +131,16 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="position: absolute">
         </select>
       </div>
       <div>
+        <label for="garnir" class="sign-in">Гарнир</label>
+        <br>
+        <p>.</p>
+        <select class="user-input" id="garnir" name="garnir">
+          {% for dish in garnirs %}
+            <option value="">{{dish[0]}} - {{dish[1]}}₽</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
         <label for="salad" class="sign-in">Салат</label>
         <br>
         <p>.</p>
@@ -161,10 +171,11 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="position: absolute">
   function request() {
       const first = document.getElementById('first').selectedIndex;
       const second = document.getElementById('second').selectedIndex;
+      const garnir = document.getElementById('garnir').selectedIndex;
       const salad = document.getElementById('salad').selectedIndex;
       const drink = document.getElementById('drink').selectedIndex;
 
-      fetch (`/add_order?first=${first}&second=${second}&salad=${salad}&drink=${drink}`).then((data) => location.href = '/lk')
+      fetch (`/add_order?first=${first}&second=${second}&salad=${salad}&drink=${drink}&garnir=${garnir}`).then((data) => location.href = '/lk')
       // console.log(first, second, salad, drink)
   }
 </script>
