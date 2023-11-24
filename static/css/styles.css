@@ -105,7 +105,7 @@ a.text {
 }
 
 .main {
-    background-image: url('https://sun9-64.userapi.com/impg/3s2c6Ng3SgP3xHhJOj7CsS8blpLsDQuqtOxiUQ/H6TrADKjbkQ.jpg?size=1578x447&quality=96&sign=750e15093ad4776530a4f13e527d85fd&type=album');
+    background-image: url('https://cdn.iportal.ru/preview/news/articles/c60a434acf3b949b410572323b9a0d610ae8ed62_1920.jpg');
 }
 
 .rt {
@@ -146,7 +146,7 @@ a.text {
     margin-right: 7%;
     margin-top: 5%;
     margin-bottom: 5%;
-    background-color: antiquewhite;
+    background-color: #666;
     border-radius: 20px;
     padding: 2%;
 }

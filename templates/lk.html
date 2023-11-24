@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+
+{% block title %}
+<link rel="stylesheet" href="/static/css/style.css">
+{% endblock title %}
+
 {% block lk %}
 {% if isAuth %}
 <div class="rt">
@@ -36,14 +41,14 @@
         </div>
         <div class="col-md-9">
             <!-- Имя и фамилия пользователя -->
-            <h3>Информация о пользователе</h3>
+            <h3 style="color: azure;">Информация о пользователе</h3>
             <br>
             <!-- Поля с информацией -->
             <div class="row mt-3 profile-info">
                 <div class="col-md-6">
-                    <p><strong>Никнейм: {{ user_name }}</strong> <span id="vk_link"></span></p>
-                    <p><strong>Email: {{ email }}</strong> <span id="lvl"></span></p>
-                    <p><strong>Должность: {{ status }}</strong> <span id="date"></span></p>
+                    <p style="color: azure;"><strong>Никнейм: {{ user_name }}</strong> <span id="vk_link"></span></p>
+                    <p style="color: azure;"><strong>Email: {{ email }}</strong> <span id="lvl"></span></p>
+                    <p style="color: azure;"><strong>Должность: {{ status }}</strong> <span id="date"></span></p>
                     <button class="btn btn-primary" onclick="location.href = '/load_image'">Загрузить чек</button>
                 </div>
             </div>

@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+
+{% block title %}
+<link rel="stylesheet" href="/static/css/style.css">
+{% endblock title %}
+
 {% block lk %}
 {% if isAuth %}
 <div class="rt">
@@ -23,17 +28,17 @@
 {% block body %}
 <div class="container">
   <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist">
-    <li class="nav-item">
+    <!-- <li class="nav-item">
         <a class="nav-link active" id="tickets-tab" data-toggle="tab" href="#tickets" role="tab" aria-controls="tickets" aria-selected="true" onclick="showTable('tickets-template')">Траты</a>
-    </li>
+    </li> -->
     <li class="nav-item">
-        <a class="nav-link" id="users-tab" data-toggle="tab" href="#users" role="tab" aria-controls="users" aria-selected="false" onclick="showTable('users-template')">Пользователи</a>
+        <a class="nav-link active" id="users-tab" data-toggle="tab" href="#users" role="tab" aria-controls="users" aria-selected="false" onclick="showTable('users-template')">Пользователи</a>
     </li>
     <li class="nav-item">
       <a class="nav-link" id="statuses-tab" data-toggle="tab" href="#statuses" role="tab" aria-controls="statuses" aria-selected="true" onclick="showTable('statuses-template')">Уровни доступа</a>
   </li>
   </ul>
-  <div class="tab-content" id="myTabContent">
+  <!-- <div class="tab-content" id="myTabContent">
       <div class="tab-pane fade show active" id="tickets" role="tabpanel" aria-labelledby="tickets-tab">
           <table class="table" id="tickets-template">
               <thead>
@@ -54,16 +59,16 @@
               {% endfor %}
           </table>
       </div>
-  </div>
+  </div> -->
   <div class="tab-content" id="myTabContent">
-    <div class="tab-pane fade" id="users" role="tabpanel" aria-labelledby="users-tab">
+    <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="users-tab">
         <table class="table" id="users-template">
             <thead>
                 <tr>
                     <th>ID пользователя</th>
                     <th>Никнейм</th>
                     <th>Email</th>
-                    <th>Затраты</th>
+                    <!-- <th>Затраты</th> -->
                     <th>Информация</th>
                 </tr>
             </thead>
@@ -72,13 +77,13 @@
                 <th>{{ user[0] }}</th>
                 <th>{{ user[1] }}</th>
                 <th>{{ user[2] }}</th>
-                <th> 
+                <!-- <th> 
                   {% if spends[user[0]] %}
                     {{ spends[user[0]] }}
                   {% else %}
                     {{0}}
                   {% endif %}
-                </th>
+                </th> -->
                 <th><button class="btn btn-primary" id="find-{{user[0]}}" onclick="location.href = '/user_info?user_id={{user[0]}}'">Поиск</button></th>
             </tbody>
             {% endfor %}

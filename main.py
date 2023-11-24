@@ -53,15 +53,6 @@ def get_users():
     res = cur.fetchall()
     return jsonify(res)
 
-# @app.route('/api/getinfo', methods=['GET'])
-# def is_registered():
-#     email = request.args.get('email')
-#     values = (email,)
-#     cur = get_db().cursor()
-#     cur.execute('''SELECT * FROM users WHERE email = ?;''', values)
-#     res = cur.fetchall()
-#     return jsonify(res)
-
 @app.route('/user_info')
 @login_required
 def user_info():
