@@ -175,7 +175,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="position: absolute">
       const salad = document.getElementById('salad').selectedIndex;
       const drink = document.getElementById('drink').selectedIndex;
 
-      fetch (`/add_order?first=${first}&second=${second}&salad=${salad}&drink=${drink}&garnir=${garnir}`).then((data) => location.href = '/lk')
+      fetch (`/add_order?first=${first}&second=${second}&salad=${salad}&drink=${drink}&garnir=${garnir}`).then((data) => location.href = '/create_order')
       // console.log(first, second, salad, drink)
   }
 </script>

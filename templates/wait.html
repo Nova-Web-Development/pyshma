@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css"> -->
+<link rel='stylesheet prefetch' href='http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css'>
+<link rel="stylesheet" href="/static/css/style.css">
+{% endblock title %}
+
+{% block lk %}
+{% if isAuth %}
+<div class="rt">
+  {% if lvl != "0" %}
+    <button class="btn btn-primary" onclick="location.href='/apanel'">
+      Панель управления
+    </button>
+  {% endif %}
+  <button class="btn btn-primary" onclick="location.href='/lk'">
+    <span class="name-surname">{{ user_name }}</span>
+    <img id="img" class="image square-image-rt" src="{{ image }}" alt="Фотография профиля">
+  </button>
+</div>
+{% else %}
+<div class="rt">
+  <button style="margin-left: 10px;" type="submit" class="nav-btn-2 btn btn-primary register" onclick="location.href = '/register'">Зарегистрироваться</button>
+  <button style="margin-left: 10px;" type="submit" class="nav-btn-2 btn btn-primary login" onclick="location.href = '/login'">Войти</button>
+</div>
+{% endif %}
+{% endblock lk %}
+
+{% block body %}
+<div class="container text-center wrapper">
+    <h1 style="color: azure">Пожалуйста, заберите свой заказ. Ваш уникальный ID - {{id}}.</h1>
+</div>
+{% endblock body %}

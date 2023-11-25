@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, jsonify, g
+from flask import Flask, render_template, request, redirect, jsonify, g, url_for
 import sqlite3
 import requests
 import hashlib
@@ -53,19 +53,38 @@ def get_users():
     res = cur.fetchall()
     return jsonify(res)
 
+# @app.route('/api/getinfo', methods=['GET'])
+# def is_registered():
+#     email = request.args.get('email')
+#     values = (email,)
+#     cur = get_db().cursor()
+#     cur.execute('''SELECT * FROM users WHERE email = ?;''', values)
+#     res = cur.fetchall()
+#     return jsonify(res)
+
+# Корзина
+cart = {}
+
+@app.route('/clear')
+@login_required
+def clear():
+    userlogin.clear_checkout()
+    global cart
+    cart = {}
+
 @app.route('/user_info')
 @login_required
 def user_info():
     if get_status(userlogin.get_id()) == "0":
         return redirect('/lk')
-    
+
     statuses = {
         "0": "Сотрудник",
         "1": "Администратор",
         "2": "Директор",
         "3": "Разработчик"
     }
-    
+
     user_id = request.args.get('user_id')
     cur = get_db().cursor()
     cur.execute('''SELECT * FROM users WHERE id = ?''', (user_id))
@@ -80,7 +99,7 @@ def user_info():
 def change_status():
     if get_status(userlogin.get_id()) == "0":
         return redirect('/lk')
-    
+
     user_id = request.args.get('user_id')
     status = request.args.get('status')
     cur = get_db().cursor()
@@ -152,6 +171,16 @@ def get_garnir(id):
     res = cur.fetchall()
     return list(res)[0][0], list(res)[0][1]
 
+def get_orders():
+    cur = get_db().cursor()
+    cur.execute('''SELECT * FROM orders WHERE isDone = 0;''')
+    return cur.fetchall()
+
+def get_finished():
+    cur = get_db().cursor()
+    cur.execute('''SELECT * FROM orders WHERE isGet = 0;''')
+    return cur.fetchall()
+
 @app.route('/add_order')
 @login_required
 def add_order():
@@ -163,7 +192,7 @@ def add_order():
     garnir_id = request.args.get('garnir')
 
     # return get_first(int(first_id))
-    
+
     first, price1 = get_first(int(first_id))
     second, price2 = get_second(int(second_id))
     salad, price3 = get_salad(int(salad_id))
@@ -172,10 +201,16 @@ def add_order():
 
     total_price = sum([price1, price2, price3, price4, price5])
 
-    cur = get_db().cursor()
+    # cur = get_db().cursor()
     values = (user_id, first, second, garnir, salad, drink, total_price)
-    cur.execute('''INSERT INTO orders (user_id, first, second, garnir, salad, drink, total_price) VALUES (?, ?, ?, ?, ?, ?, ?);''', values)
-    get_db().commit()
+    # cur.execute('''INSERT INTO orders (user_id, first, second, garnir, salad, drink, total_price) VALUES (?, ?, ?, ?, ?, ?, ?);''', values)
+    # get_db().commit()
+    userlogin.add_to_basket(first=first, second=second, salad=salad, garnir=garnir, drink=drink)
+
+@app.route('/test')
+@login_required
+def test():
+    return userlogin.get_products()
 
 @app.route('/change_image', methods=['POST', 'GET'])
 @login_required
@@ -283,13 +318,115 @@ def form():
     else:
         return render_template('form.html', isAuth=False)
 
+@app.route('/done')
+@login_required
+def done():
+    id = request.args.get('id')
+    dish = request.args.get('dish')
 
-@app.route('/create_order', methods=['POST', 'GET'])
+    cur = get_db().cursor()
+    cur.execute('''UPDATE orders SET isDone = 1 WHERE id = ? AND dishes = ?;''', (id, dish))
+    get_db().commit()
+
+@app.route('/finished')
+@login_required
+def finished():
+    id = request.args.get('id')
+    dish = request.args.get('dish')
+
+    cur = get_db().cursor()
+    cur.execute('''UPDATE orders SET isGet = 1 WHERE id = ? AND dishes = ?;''', (id, dish))
+    get_db().commit()
+
+def get_products_from_db():
+    cur = get_db().cursor()
+    cur.execute('''SELECT id, name, price FROM products;''')
+    res = cur.fetchall()
+    return res
+
+# products = {
+#     1: {'name': 'Бизнес ланч', 'price': 100},
+#     2: {'name': 'Борщ', 'price': 200},
+#     3: {'name': 'Хурма', 'price': 300}
+# }
+
+
+
+@app.route('/create_order')
+@login_required
+def creating_an_order():
+    products = {}
+    for i in get_products_from_db():
+        products[i[0]] = {'name': i[1], 'price': i[2]}
+    
+    return render_template('basket.html', products=products)
+
+@app.route('/add')
+@login_required
+def add():
+    userlogin.add_to_checkout(request.args.get('dish'))
+
+
+@app.route('/add_to_cart', methods=['POST'])
+@login_required
+def add_to_cart():
+    products = {}
+    for i in get_products_from_db():
+        products[i[0]] = {'name': i[1], 'price': i[2]}
+
+    product_id = int(request.form['product_id'])
+    if product_id == 1:
+        if product_id in cart:
+            cart[product_id] += 1
+        else:
+            cart[product_id] = 1
+        return redirect('/business_lanch')
+    if product_id in products:
+        if product_id in cart:
+            cart[product_id] += 1
+        else:
+            cart[product_id] = 1
+    return redirect(url_for('creating_an_order'))
+
+@app.route('/wait')
+@login_required
+def wait():
+    return render_template('wait.html', lvl=get_status(userlogin.get_id()),
+                               isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()), id=userlogin.get_id())
+
+@app.route('/addict', methods=['POST', 'GET'])
 @login_required
 def create_pred_order():
+    products = {}
+    for i in get_products_from_db():
+        products[i[0]] = {'name': i[1], 'price': i[2]}
+    
+    total_price = 0
+    cart_items = []
+    for product_id, quantity in cart.items():
+        product = products[product_id]
+        total_price += product['price'] * quantity
+        cart_items.append({'name': product['name'], 'quantity': quantity, 'price': product['price']})
+    if request.method == 'POST':
+        # if not (userlogin.get_checkout() == [] and userlogin.get_products() == []):
+        products = ', '.join(userlogin.get_checkout() + userlogin.get_products())
+
+        cur = get_db().cursor()
+        cur.execute('''INSERT INTO orders (id, dishes, total_price, isDone, isGet) VALUES (?, ?, ?, 0, 0);''', (userlogin.get_id(), products, total_price))
+        get_db().commit()
+        return redirect('/wait')
+        
+        # else:
+        #     return redirect('/addict')
+
+    return render_template('cart.html', cart_items=cart_items, total_price=total_price)
+
+@app.route('/business_lanch', methods=['POST', 'GET'])
+@login_required
+def create_pred_order1():
     first, second, salads, drinks, garnirs = get_dishes()
     return render_template('create_pred_order.html', lvl=get_status(userlogin.get_id()),
-                               isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()), 
+                               isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()),
                                first=first, second=second, salads=salads, drinks=drinks, garnirs=garnirs, id=userlogin.get_id())
 
 @app.route('/load_image', methods=['POST', 'GET'])
@@ -362,13 +499,13 @@ def apanel():
                 spends[i[0]] += i[2]
             except:
                 spends[i[0]] = i[2]
-        
+
         if current_user.is_authenticated:
             return render_template(
                 'apanel.html', spends=spends, lvls=get_statuses(),
                 nicknames=nicknames, lvl = get_status(userlogin.get_id()),
                 isAuth=True, tickets=res, users=res1, user_name=userlogin.get_name(),
-                email=userlogin.get_email(), image=get_image(userlogin.get_id()))
+                email=userlogin.get_email(), image=get_image(userlogin.get_id()), orders = get_orders(), finished=get_finished())
         else:
             return render_template('apanel.html', isAuth=False)
 

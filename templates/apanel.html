@@ -30,40 +30,69 @@
 {% block body %}
 <div class="container">
   <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist">
-    <!-- <li class="nav-item">
-        <a class="nav-link active" id="tickets-tab" data-toggle="tab" href="#tickets" role="tab" aria-controls="tickets" aria-selected="true" onclick="showTable('tickets-template')">Траты</a>
-    </li> -->
     <li class="nav-item">
-        <a class="nav-link active" id="users-tab" data-toggle="tab" href="#users" role="tab" aria-controls="users" aria-selected="false" onclick="showTable('users-template')">Пользователи</a>
+        <a class="nav-link active" id="orders-tab" data-toggle="tab" href="#orders" role="tab" aria-controls="orders" aria-selected="true" onclick="showTable('orders-template')">Готовятся</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="finished-tab" data-toggle="tab" href="#finished" role="tab" aria-controls="finished" aria-selected="true" onclick="showTable('finished-template')">Готовы</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="users-tab" data-toggle="tab" href="#users" role="tab" aria-controls="users" aria-selected="false" onclick="showTable('users-template')">Пользователи</a>
     </li>
     <li class="nav-item">
       <a class="nav-link" id="statuses-tab" data-toggle="tab" href="#statuses" role="tab" aria-controls="statuses" aria-selected="true" onclick="showTable('statuses-template')">Уровни доступа</a>
   </li>
   </ul>
-  <!-- <div class="tab-content" id="myTabContent">
-      <div class="tab-pane fade show active" id="tickets" role="tabpanel" aria-labelledby="tickets-tab">
-          <table class="table" id="tickets-template">
+  <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+          <table class="table" id="orders-template">
               <thead>
                   <tr>
-                      <th>ID пользователя</th>
-                      <th>Никнейм</th>
-                      <th>Компания</th>
-                      <th>Цена чека</th>
+                      <th style="color: azure">ID пользователя</th>
+                      <th style="color: azure">Блюда</th>
+                      <th style="color: azure">Стоимость</th>
+                      <th style="color: azure">Выполнен</th>
                   </tr>
               </thead>
-              {% for ticket in tickets %}
+              {% for order in orders %}
               <tbody>
-                  <th>{{ ticket[0] }}</th>
-                  <th>{{ nicknames[ticket[0] - 1] }}</th>
-                  <th>{{ ticket[1] }}</th>
-                  <th>{{ ticket[2] }}</th>
+                  <th style="color: azure">{{ order[0] }}</th>
+                  <th style="color: azure">{{ order[1] }}</th>
+                  <th style="color: azure">{{ order[2] }}</th>
+                  <th><button class="btn btn-primary" id="suc-{{order[0]}}" onclick="fetch('/done?id={{order[0]}}&dish={{order[1]}}').then((data) => {
+                    location.reload()
+                  })">Готов</button></th>
               </tbody>
               {% endfor %}
           </table>
       </div>
-  </div> -->
+  </div>
   <div class="tab-content" id="myTabContent">
-    <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="users-tab">
+    <div class="tab-pane fade" id="finished" role="tabpanel" aria-labelledby="finished-tab">
+        <table class="table" id="finished-template">
+            <thead>
+                <tr>
+                    <th style="color: azure">ID пользователя</th>
+                    <th style="color: azure">Блюда</th>
+                    <th style="color: azure">Стоимость</th>
+                    <th style="color: azure">Получен</th>
+                </tr>
+            </thead>
+            {% for finish in finished %}
+            <tbody>
+                <th style="color: azure">{{ finish[0] }}</th>
+                <th style="color: azure">{{ finish[1] }}</th>
+                <th style="color: azure">{{ finish[2] }}</th>
+                <th><button class="btn btn-primary" id="suc-{{finish[0]}}" onclick="fetch('/finished?id={{finish[0]}}&dish={{finish[1]}}').then((data) => {
+                  location.reload()
+                })">Получен</button></th>
+            </tbody>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+  <div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade" id="users" role="tabpanel" aria-labelledby="users-tab">
         <table class="table" id="users-template">
             <thead>
                 <tr>

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<!--title<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">-->
+
+<link rel='stylesheet prefetch' href='http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css'>
+<link rel="stylesheet" href="/static/css/style.css">
+<title style="color: azure">Shopping Cart</title>
+<style>
+        body {
+            font-family: Arial, sans-serif;
+/* <!--            background-color: #f4f4f4;--> */
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+/* <!--            background-color: #fff;--> */
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        a {
+            display: block;
+            width: 150px;
+            margin: 20px auto;
+            text-align: center;
+            padding: 10px;
+/* <!--            background-color: #4CAF50;--> */
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        p {
+            text-align: center;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+</style>
+{% endblock title %}
+
+
+{% block body %}
+<div class="container text-center">
+
+    <h1 style="color: azure">Корзина🛒</h1>
+    <form method="post">
+        <ul>
+            {% for item in cart_items %}
+                <li style="color: azure">
+                    <img src="{{ item.image }}" style="max-width: 100px; height: auto;">
+                    {{ item.name }} - Количество: {{ item.quantity }} - Цена: {{ item.price }}₽
+                </li>
+            {% endfor %}
+        </ul>
+        <p style="color: azure">Общая цена: {{ total_price }}₽</p>
+        <button class="btn btn-primary" onclick="redirectToCreateOrder()" type="button">🍽️Продолжить сбор корзины🍽️</button>
+        <button class="btn btn-primary" id="sbm-btn" type="submit">Оформить заказ</button>
+        <button class="btn btn-primary" onclick="clearCheckout()" type="button">Очистить корзину</button>
+    </form>
+</div>
+<script>
+    function redirectToCreateOrder() {
+        window.location.href = '/create_order';
+    }
+
+    function clearCheckout () {
+        fetch ('/clear').then((data) => {location.href = '/create_order'})
+    }
+</script>
+{% endblock body %}

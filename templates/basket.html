@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<!--title<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">-->
+<link rel='stylesheet prefetch' href='http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css'>
+<link rel="stylesheet" href="/static/css/style.css">
+<style>
+        body {
+/* <!--            background-color: #f2f2f2; Серый фон--> */
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+/* <!--            background-color: #fff;--> */
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+/* <!--        button {-->
+<!--            background-color: #4CAF50;-->
+<!--            color: white;-->
+<!--            padding: 10px 20px;-->
+<!--            border: none;-->
+<!--            border-radius: 5px;-->
+<!--        }--> */
+        a.button {
+            display: block;
+            width: 100px;
+            margin: 20px auto;
+            text-align: center;
+            padding: 10px;
+/* <!--            background-color: #4CAF50;--> */
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+</style>
+{% endblock title %}
+
+{% block body %}
+<div class="container text-center">
+    <h1 style="color: azure">Меню</h1>
+    <ul>
+        {% for id, product in products.items() %}
+            <li>
+                <form action="/add_to_cart" method="post">
+                    <span style="color: azure">{{ product.name }} - {{ product.price }}₽</span>
+                    <input type="hidden" name="product_id" value="{{ id }}">
+                    <button class="btn btn-primary" id="add-{{ product.name }}" type="submit">Добавить в корзину</button>
+                    <script>
+                        document.getElementById('add-{{ product.name }}').addEventListener('click', (e) => {
+                            fetch(`/add?dish=${"{{ product.name }}"}`)
+                        })
+                    </script>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+    <button class="btn btn-primary" onclick="location.href='/addict'">Корзина🛒</button>
+</div>
+{% endblock body %}
