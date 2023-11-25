@@ -178,7 +178,7 @@ def get_orders():
 
 def get_finished():
     cur = get_db().cursor()
-    cur.execute('''SELECT * FROM orders WHERE isGet = 0;''')
+    cur.execute('''SELECT * FROM orders WHERE isGet = 0 AND isDone = 1;''')
     return cur.fetchall()
 
 @app.route('/add_order')
@@ -409,11 +409,15 @@ def create_pred_order():
         cart_items.append({'name': product['name'], 'quantity': quantity, 'price': product['price']})
     if request.method == 'POST':
         # if not (userlogin.get_checkout() == [] and userlogin.get_products() == []):
-        products = ', '.join(userlogin.get_checkout() + userlogin.get_products())
+        try:
+            products = ', '.join(userlogin.get_checkout() + userlogin.get_products())
+        except:
+            products = ', '.join(userlogin.get_checkout())
 
         cur = get_db().cursor()
         cur.execute('''INSERT INTO orders (id, dishes, total_price, isDone, isGet) VALUES (?, ?, ?, 0, 0);''', (userlogin.get_id(), products, total_price))
         get_db().commit()
+        userlogin.clear_checkout()
         return redirect('/wait')
         
         # else:
@@ -476,6 +480,13 @@ def lk():
     else:
         return render_template('lk.html', isAuth=False)
 
+@app.route('/get_items')
+@login_required
+def get_items():
+    cur = get_db().cursor()
+    cur.execute('''SELECT * FROM products''')
+    return cur.fetchall()
+
 @app.route('/apanel')
 @login_required
 def apanel():
@@ -505,9 +516,69 @@ def apanel():
                 'apanel.html', spends=spends, lvls=get_statuses(),
                 nicknames=nicknames, lvl = get_status(userlogin.get_id()),
                 isAuth=True, tickets=res, users=res1, user_name=userlogin.get_name(),
-                email=userlogin.get_email(), image=get_image(userlogin.get_id()), orders = get_orders(), finished=get_finished())
+                email=userlogin.get_email(), image=get_image(userlogin.get_id()), orders = get_orders(), finished=get_finished(), items=get_items())
         else:
             return render_template('apanel.html', isAuth=False)
+        
+def get_last_id():
+    try:
+        cur = get_db().cursor()
+        cur.execute('''SELECT id FROM products WHERE 1;''')
+        return int(cur.fetchall()[-1][0])
+    except:
+        return 0
+    
+@app.route('/delete_from_db')
+@login_required
+def delete_from_db():
+    id = request.args.get('id')
+    cur = get_db().cursor()
+    cur.execute('''DELETE FROM products WHERE id = ?;''', (id))
+    get_db().commit()
+    
+
+@app.route('/add_item', methods=['POST', 'GET'])
+@login_required
+def add_item():
+    if userlogin.get_status() not in ["2", "3"]:
+        return redirect('/lk')
+    
+    if request.method == 'POST':
+        cur = get_db().cursor()
+        cur.execute('''INSERT INTO products (id, name, price, image) VALUES (?, ?, ?, ?);''', (get_last_id() + 1, request.form['name'], request.form['price'], request.form['image']))
+        get_db().commit()
+        return redirect('/apanel')
+    
+    return render_template('add_item.html', lvl=get_status(userlogin.get_id()),
+                               isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
+
+def get_feedbacks():
+    cur = get_db().cursor()
+    cur.execute('''SELECT * FROM feedbacks WHERE 1;''')
+    return cur.fetchall()
+
+@app.route('/add_feedback', methods=['POST', 'GET'])
+@login_required
+def add_feedback():
+    if request.method == 'POST':
+        dish = request.form['dish']
+        text = request.form['text']
+        rate = request.form['rate']
+
+        cur = get_db().cursor()
+        cur.execute('''INSERT INTO feedbacks (user_id, dish, text, rate) VALUES (?, ?, ?, ?);''', (userlogin.get_id(), dish, text, rate))
+        get_db().commit()
+
+        return redirect('/feedbacks')
+    
+    return render_template('add_feedback.html', lvl=get_status(userlogin.get_id()),
+                            isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()))
+
+@app.route('/feedbacks')
+@login_required
+def feedback():
+    return render_template('feedbacks.html', lvl=get_status(userlogin.get_id()),
+                        isAuth=True, user_name=userlogin.get_name(), image=get_image(userlogin.get_id()), feedbacks=get_feedbacks())
 
 if __name__ == '__main__':
     app.teardown_appcontext(close_db)

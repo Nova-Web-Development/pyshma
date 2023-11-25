@@ -43,6 +43,9 @@
       <li class="nav-item">
         <a class="nav-link" id="statuses-tab" data-toggle="tab" href="#statuses" role="tab" aria-controls="statuses" aria-selected="true" onclick="showTable('statuses-template')">Уровни доступа</a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" id="items-tab" data-toggle="tab" href="#items" role="tab" aria-controls="items" aria-selected="true" onclick="showTable('items-template')">Блюда</a>
+      </li>
     {% endif %}
   </ul>
   <div class="tab-content" id="myTabContent">
@@ -148,6 +151,31 @@
           </table>
       </div>
     </div>
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade" id="items" role="tabpanel" aria-labelledby="items-tab">
+          <table class="table" id="items-template">
+              <thead>
+                  <tr>
+                      <th style="color: azure">Изображения</th>
+                      <th style="color: azure">ID блюда</th>
+                      <th style="color: azure">Блюда</th>
+                      <th style="color: azure">Стоимость</th>
+                      <th style="color: azure">Удалить</th>
+                  </tr>
+              </thead>
+              {% for item in items %}
+              <tbody>
+                  <th><img src="{{ item[3] }}" alt="Картинка товара" style="max-width: 100px;"/></th>
+                  <th style="color: azure">{{ item[0] }}</th>
+                  <th style="color: azure">{{ item[1] }}</th>
+                  <th style="color: azure">{{ item[2] }}</th>
+                  <th><button class="btn btn-primary" id="btn-{{item[0]}}" onclick="fetch('/delete_from_db?id={{item[0]}}').then((data) => location.reload())">Удалить</button></th>
+              </tbody>
+              {% endfor %}
+          </table>
+          <button class="btn btn-primary" onclick="location.href = '/add_item'">Добавить товар</button>
+      </div>
+  </div>
   {% endif %}
 </div>
 

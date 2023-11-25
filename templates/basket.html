@@ -56,9 +56,11 @@
                     <input type="hidden" name="product_id" value="{{ id }}">
                     <button class="btn btn-primary" id="add-{{ product.name }}" type="submit">Добавить в корзину</button>
                     <script>
-                        document.getElementById('add-{{ product.name }}').addEventListener('click', (e) => {
+                        if ('{{product.name}}' != 'Бизнес-ланч') {
+                           document.getElementById('add-{{ product.name }}').addEventListener('click', (e) => {
                             fetch(`/add?dish=${"{{ product.name }}"}`)
-                        })
+                            }) 
+                        }
                     </script>
                 </form>
             </li>

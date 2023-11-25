@@ -52,8 +52,12 @@ class UserLogin():
         return self
     
     def get_products(self):
-        return self.dish
-    
+        try:
+            if self.dish:
+                return self.dish
+        except:
+            return []
+            
     def get_checkout(self):
         return [self.first, self.second, self.garnir, self.salad, self.drink]
     
