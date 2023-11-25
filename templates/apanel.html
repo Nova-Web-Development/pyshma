@@ -39,9 +39,11 @@
     <li class="nav-item">
         <a class="nav-link" id="users-tab" data-toggle="tab" href="#users" role="tab" aria-controls="users" aria-selected="false" onclick="showTable('users-template')">Пользователи</a>
     </li>
-    <li class="nav-item">
-      <a class="nav-link" id="statuses-tab" data-toggle="tab" href="#statuses" role="tab" aria-controls="statuses" aria-selected="true" onclick="showTable('statuses-template')">Уровни доступа</a>
-  </li>
+    {% if lvl in ["2", "3"] %}
+      <li class="nav-item">
+        <a class="nav-link" id="statuses-tab" data-toggle="tab" href="#statuses" role="tab" aria-controls="statuses" aria-selected="true" onclick="showTable('statuses-template')">Уровни доступа</a>
+      </li>
+    {% endif %}
   </ul>
   <div class="tab-content" id="myTabContent">
       <div class="tab-pane fade show active" id="orders" role="tabpanel" aria-labelledby="orders-tab">
@@ -121,30 +123,32 @@
         </table>
     </div>
   </div>
-  <div class="tab-content" id="myTabContent">
-    <div class="tab-pane fade" id="statuses" role="tabpanel" aria-labelledby="statuses-tab">
-        <table class="table" id="statuses-template">
-            <thead>
-                <tr>
-                    <th style="color: azure">ID пользователя</th>
-                    <th style="color: azure">Никнейм</th>
-                    <th style="color: azure">Уровень доступа: </th>
-                    <th style="color: azure">Изменить уровень доступа</th>
-                    <th style="color: azure">Подтвердить</th>
-                </tr>
-            </thead>
-            {% for status in lvls %}
-            <tbody>
-                <th style="color: azure">{{ status[0] }}</th>
-                <th style="color: azure">{{ nicknames[status[0] - 1] }}</th>
-                <th style="color: azure" id="th-{{status[0]}}">{{ status[1] }}</th>
-                <th style="color: azure"><input type="number" name="Введите уровень доступа" id="input-{{status[0]}}"></th>
-                <th><button class="btn btn-primary" id="btn-{{status[0]}}" onclick="changeStatus('{{status[0]}}')">Подтвердить</button></th>
-            </tbody>
-            {% endfor %}
-        </table>
+  {% if lvl in ["2", "3"] %}
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade" id="statuses" role="tabpanel" aria-labelledby="statuses-tab">
+          <table class="table" id="statuses-template">
+              <thead>
+                  <tr>
+                      <th style="color: azure">ID пользователя</th>
+                      <th style="color: azure">Никнейм</th>
+                      <th style="color: azure">Уровень доступа: </th>
+                      <th style="color: azure">Изменить уровень доступа</th>
+                      <th style="color: azure">Подтвердить</th>
+                  </tr>
+              </thead>
+              {% for status in lvls %}
+              <tbody>
+                  <th style="color: azure">{{ status[0] }}</th>
+                  <th style="color: azure">{{ nicknames[status[0] - 1] }}</th>
+                  <th style="color: azure" id="th-{{status[0]}}">{{ status[1] }}</th>
+                  <th style="color: azure"><input type="number" name="Введите уровень доступа" id="input-{{status[0]}}"></th>
+                  <th><button class="btn btn-primary" id="btn-{{status[0]}}" onclick="changeStatus('{{status[0]}}')">Подтвердить</button></th>
+              </tbody>
+              {% endfor %}
+          </table>
+      </div>
     </div>
-  </div>
+  {% endif %}
 </div>
 
 <script>
